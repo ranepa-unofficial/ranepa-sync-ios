@@ -55,6 +55,8 @@
 	<string>Чтобы добавлять пары в календарь «РАНХиГС» и обновлять их при изменениях.</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
+	<key>TelemetryDeckAppID</key>
+	<string>$(TELEMETRYDECK_APP_ID)</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

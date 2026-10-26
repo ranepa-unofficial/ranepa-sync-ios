@@ -37,6 +37,10 @@ enum Keys {
     static let sessionUntil = "sessionUntil"
     /// План обучения из ЛК (JSON StudyPlan).
     static let plan = "plan"
+    /// Анонимная статистика включена. Не сбрасывается при выходе.
+    static let analytics = "analytics"
+    /// Когда последний раз отправили, какие функции включены.
+    static let analyticsDailyAt = "analyticsDailyAt"
 
     /// Всё, что относится к сессии и удаляется при выходе.
     static let session = [

@@ -39,6 +39,7 @@ final class AppState {
     var calendarExport = false
     var liveActivity = true
     var themeMode = 0
+    var analytics = true
     var fullName: String?
     var group: String?
     var program: String?
@@ -87,6 +88,7 @@ final class AppState {
         calendarExport = d.bool(forKey: Keys.calendarExport)
         liveActivity = d.bool(Keys.liveActivity, default: true)
         themeMode = d.integer(forKey: Keys.themeMode)
+        analytics = d.bool(Keys.analytics, default: true)
         fullName = d.string(forKey: Keys.fullName)
         group = d.string(forKey: Keys.group)
         program = d.string(forKey: Keys.program)
@@ -103,7 +105,11 @@ final class AppState {
         let sync = await Sync.save(result, monday: monday, d)
         loadCache()
         error = sync.sideEffectError
-        if !demo { Background.schedule() }
+        if !demo {
+            Background.schedule()
+            Analytics.start()
+            Analytics.signal("Login.completed")
+        }
         // Разрешение нужно и для уведомлений об изменениях, не только для напоминаний.
         await checkNotifications(request: true)
     }
@@ -111,6 +117,7 @@ final class AppState {
     /// Вход в демо долгим нажатием на логотип стартового экрана.
     func startDemo() async {
         d.set(true, forKey: Keys.demo)
+        Analytics.stop()
         await completeLogin(Demo.fetch(d), monday: Clock.now.monday)
     }
 
@@ -162,11 +169,13 @@ final class AppState {
                 error = LKError.serverBusy(status: 503, retryAfter: nil).errorDescription
             }
         } catch LKError.needLogin {
+            Analytics.syncFailed(LKError.needLogin, trigger: trigger)
             d.set(true, forKey: Keys.sessionExpired)
             sessionExpired = true
             sessionCardHidden = false
             Notifications.cancelKeepAlive()
         } catch {
+            Analytics.syncFailed(error, trigger: trigger)
             self.error = error.localizedDescription
         }
     }
@@ -213,6 +222,12 @@ final class AppState {
         await LiveActivities.update(lessons, enabled: loggedIn && liveActivity, reminderMinutes: reminderMinutes)
         // Если активность видна, фон уберёт её после последней пары.
         if loggedIn && !demo { Background.schedule() }
+    }
+
+    func setAnalytics(_ enabled: Bool) {
+        d.set(enabled, forKey: Keys.analytics)
+        analytics = enabled
+        if enabled { Analytics.start() } else { Analytics.stop() }
     }
 
     func setThemeMode(_ mode: Int) {

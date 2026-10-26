@@ -86,6 +86,17 @@ struct AccountView: View {
                     Text(footer)
                 }
 
+                // Без App ID в сборке и в демо статистики нет — и переключателя тоже.
+                if !Analytics.appID.isEmpty && !state.demo {
+                    Section {
+                        Toggle(isOn: Binding(get: { state.analytics }, set: { state.setAnalytics($0) })) {
+                            Label { Text("Анонимная статистика") } icon: { SettingsIcon("chart.bar.fill", .gray) }
+                        }
+                    } footer: {
+                        Text("Сколько человек пользуется приложением и какие разделы открывают. Без логина, ФИО и группы.")
+                    }
+                }
+
                 #if DEBUG || TEST_TOOLS
                 if Clock.debugTools { DebugSection() }
                 #endif
@@ -123,6 +134,7 @@ struct AccountView: View {
                     Button(role: .close) { dismiss() }
                 }
             }
+            .onAppear { Analytics.screen("account") }
             .alert("Уведомления выключены", isPresented: $explainNotifications) {
                 Button("Отмена", role: .cancel) {}
                 Button("Открыть Настройки") {
