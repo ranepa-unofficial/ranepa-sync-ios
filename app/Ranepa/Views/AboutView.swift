@@ -9,6 +9,8 @@ enum Links {
 /// Версия, справка, конфиденциальность и связь с разработчиком.
 struct AboutView: View {
     @Environment(\.openURL) private var openURL
+    /// Возврат из вложенного экрана — не новое открытие.
+    @State private var counted = false
 
     private var version: String {
         let info = Bundle.main.infoDictionary
@@ -60,7 +62,11 @@ struct AboutView: View {
         }
         .navigationTitle("О приложении")
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear { Analytics.screen("about") }
+        .onAppear {
+                guard !counted else { return }
+                counted = true
+                Analytics.screen("about")
+            }
     }
 
     private func externalRow(_ title: String, icon: SettingsIcon) -> some View {

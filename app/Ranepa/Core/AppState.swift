@@ -101,6 +101,8 @@ final class AppState {
 
     /// Вызывается экраном входа, когда страница ЛК уже авторизована.
     func completeLogin(_ result: FetchResult, monday: Date) async {
+        // Повторный вход после истёкшей сессии за новый вход не считаем.
+        let relogin = loggedIn
         error = nil
         let sync = await Sync.save(result, monday: monday, d)
         loadCache()
@@ -108,7 +110,7 @@ final class AppState {
         if !demo {
             Background.schedule()
             Analytics.start()
-            Analytics.signal("Login.completed")
+            if !relogin { Analytics.signal("Login.completed") }
         }
         // Разрешение нужно и для уведомлений об изменениях, не только для напоминаний.
         await checkNotifications(request: true)

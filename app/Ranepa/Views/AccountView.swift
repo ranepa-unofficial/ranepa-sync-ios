@@ -10,6 +10,8 @@ struct AccountView: View {
     @Environment(\.openURL) private var openURL
     @State private var confirmLogout = false
     @State private var explainNotifications = false
+    /// Возврат из «О приложении» — не новое открытие аккаунта.
+    @State private var counted = false
 
     var body: some View {
         @Bindable var state = state
@@ -134,7 +136,11 @@ struct AccountView: View {
                     Button(role: .close) { dismiss() }
                 }
             }
-            .onAppear { Analytics.screen("account") }
+            .onAppear {
+                guard !counted else { return }
+                counted = true
+                Analytics.screen("account")
+            }
             .alert("Уведомления выключены", isPresented: $explainNotifications) {
                 Button("Отмена", role: .cancel) {}
                 Button("Открыть Настройки") {
