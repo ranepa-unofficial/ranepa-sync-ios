@@ -7,6 +7,10 @@ options:
     iOS: "26.0"
     watchOS: "10.0"
   createIntermediateGroups: true
+packages:
+  TelemetryDeck:
+    url: https://github.com/TelemetryDeck/SwiftSDK
+    from: 2.14.2
 settings:
   base:
     DEVELOPMENT_TEAM: DXDPT4TQR4
@@ -45,6 +49,8 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         INFOPLIST_FILE: Ranepa/Info.plist
+        # App ID приложения в TelemetryDeck; пустой — статистика выключена.
+        TELEMETRYDECK_APP_ID: 8FA78C02-5E0B-49EF-BB56-706620C52402
     info:
       path: Ranepa/Info.plist
       properties:
@@ -53,6 +59,7 @@ targets:
         CFBundleLocalizations: [ru]
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        TelemetryDeckAppID: $(TELEMETRYDECK_APP_ID)
         CFBundleURLTypes:
           - CFBundleURLName: com.qteb.ranepaTimetable
             CFBundleURLSchemes: [ranepa]
@@ -77,6 +84,8 @@ targets:
     dependencies:
       - target: RanepaWidget
       - target: RanepaWatch
+      - package: TelemetryDeck
+        product: TelemetryDeck
 
   RanepaWidget:
     type: app-extension

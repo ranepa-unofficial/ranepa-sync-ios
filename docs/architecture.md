@@ -38,5 +38,11 @@
   Приложение для часов ([`app/RanepaWatch`](../app/RanepaWatch)) сохраняет их у себя, усложнения
   ([`app/RanepaWatchWidget`](../app/RanepaWatchWidget)) читают оттуда. Сами часы в ЛК не ходят. Общая
   модель пар — [`app/Shared/Lessons.swift`](../app/Shared/Lessons.swift).
+- **Статистика.** TelemetryDeck ([`app/Ranepa/Services/Analytics.swift`](../app/Ranepa/Services/Analytics.swift)):
+  SDK запускается только из открытого приложения (фоновые пробуждения не
+  считаются), в демо и без App ID (`TELEMETRYDECK_APP_ID` в `project.yml`)
+  выключен. Кроме сессий SDK — `Login.completed`, `Sync.failed` (`reason`,
+  `trigger`), `Screen.opened` (`screen`), `Support.opened` и раз в день
+  `Settings.daily`; названия и параметры те же, что в Android-версии.
 - **Интерфейс.** SwiftUI на системных компонентах iOS 26 (Liquid Glass) по
   Apple Human Interface Guidelines.

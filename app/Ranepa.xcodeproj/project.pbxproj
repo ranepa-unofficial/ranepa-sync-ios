@@ -24,6 +24,7 @@
 		39D55AD8D56DF1C7B64EA63D /* DemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8106CCE7A7ABA94724E47606 /* DemoTests.swift */; };
 		3C2C55FB94E27B6CFE531D0F /* Places.swift in Sources */ = {isa = PBXBuildFile; fileRef = 464C578967848BE5F3267C85 /* Places.swift */; };
 		4422FA7CEB4E92B2B03B084D /* RanepaWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBEDBA7C68823446BDD9FF7 /* RanepaWatchApp.swift */; };
+		44D5135126434741847AF1F6 /* AnalyticsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 131F6281BF50AA0D5A30CCF5 /* AnalyticsTests.swift */; };
 		4C5E3FD9A653FEF837272E96 /* SyncPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A29B04F3B1CAB517770673D8 /* SyncPolicyTests.swift */; };
 		4E8C752E1813A98D5859F1F1 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E01AF94B4D84CEB02AD96B4A /* AppState.swift */; };
 		52C6036401037090361E4D75 /* SubjectsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB7669F639E7DBDC5420FFC /* SubjectsView.swift */; };
@@ -31,6 +32,7 @@
 		5921E8600CC056515060B713 /* Lessons.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50AFFAA75BD71DF9CEC62A6 /* Lessons.swift */; };
 		5AB8EDB60739859CCD5A682D /* LessonSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61D4B3FAF3B8ED55D063D641 /* LessonSheet.swift */; };
 		5B0DE23F0BD11EBFDF7E0596 /* PlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45D43F9F77D7C9FB26A9616A /* PlanView.swift */; };
+		66C02D4BFF2BF7BA6B3A4B85 /* Analytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10781A388E1D7431154DA23C /* Analytics.swift */; };
 		6889011EC6F3F733E9AD6E65 /* LessonActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3507124DF6D45C996F40B198 /* LessonActivity.swift */; };
 		6A88D30FACE1AE2D217446BB /* SupportLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864380278A9A34F4EC0E341C /* SupportLink.swift */; };
 		6E9B3857EA5EBA78253C607A /* Pagers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3F0933FDE3223C67BA291D /* Pagers.swift */; };
@@ -40,6 +42,7 @@
 		7B8FDE878BFE34BED4461228 /* Prefs.swift in Sources */ = {isa = PBXBuildFile; fileRef = E337B0A51BEC1E16A227584A /* Prefs.swift */; };
 		7E4A3143827B0F016DA0B9E9 /* Background.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A0708D3D56C4621444EE86 /* Background.swift */; };
 		81F8AF385A56C155AE7C9DC5 /* AccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 444A9DDA20FE0282FF2CF1FC /* AccountView.swift */; };
+		8ECA50D2AD5CE4C86B5CBCF2 /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = 0DA751B4459B80FEB6CAEACE /* TelemetryDeck */; };
 		99C406B97FE8252E9AC4AA78 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C732ECF6116ECED4EF6BF3B0 /* Assets.xcassets */; };
 		A69E536E4D4403208A47153C /* Lessons.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50AFFAA75BD71DF9CEC62A6 /* Lessons.swift */; };
 		ACB3C01A7C0DF48C110ED7F5 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E390453ED75403003A12A1C /* HomeView.swift */; };
@@ -142,6 +145,8 @@
 		0B3F0933FDE3223C67BA291D /* Pagers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pagers.swift; sourceTree = "<group>"; };
 		0BF5605E35BFEC841A2FC4D0 /* Changes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Changes.swift; sourceTree = "<group>"; };
 		0D29FAA68E5EE9073A8865A6 /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
+		10781A388E1D7431154DA23C /* Analytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Analytics.swift; sourceTree = "<group>"; };
+		131F6281BF50AA0D5A30CCF5 /* AnalyticsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsTests.swift; sourceTree = "<group>"; };
 		18F63FF50EB3BEC47772A6EB /* Subjects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subjects.swift; sourceTree = "<group>"; };
 		1983755CA3C96F939265476E /* LecturerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LecturerView.swift; sourceTree = "<group>"; };
 		1BB7669F639E7DBDC5420FFC /* SubjectsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubjectsView.swift; sourceTree = "<group>"; };
@@ -202,10 +207,22 @@
 		FFBEDBA7C68823446BDD9FF7 /* RanepaWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RanepaWatchApp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFrameworksBuildPhase section */
+		62C842C08083C1C7DA37DD20 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8ECA50D2AD5CE4C86B5CBCF2 /* TelemetryDeck in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
 /* Begin PBXGroup section */
 		270252A99E495408E00FFBA7 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				10781A388E1D7431154DA23C /* Analytics.swift */,
 				C1A0708D3D56C4621444EE86 /* Background.swift */,
 				9468FD91CB162D269B016603 /* CalendarExport.swift */,
 				31F47E45E969B537A1CE4783 /* Campus.swift */,
@@ -223,6 +240,7 @@
 		2B51D8A231F4DD82BA8B8E5B /* RanepaTests */ = {
 			isa = PBXGroup;
 			children = (
+				131F6281BF50AA0D5A30CCF5 /* AnalyticsTests.swift */,
 				8106CCE7A7ABA94724E47606 /* DemoTests.swift */,
 				4B0576FE42B62CCB11FA32A4 /* ExamSessionTests.swift */,
 				24E462B884F0154F4E2950C8 /* LiveActivityPlanTests.swift */,
@@ -427,6 +445,7 @@
 			buildPhases = (
 				3BA602A38EEB6CB0DABF55E8 /* Sources */,
 				015DF175B2BE205274A5A100 /* Resources */,
+				62C842C08083C1C7DA37DD20 /* Frameworks */,
 				794114DDF9852BD0BB187F1D /* Embed Foundation Extensions */,
 				AD2223BC78F48A7620D7C81D /* Embed Watch Content */,
 			);
@@ -438,6 +457,7 @@
 			);
 			name = Ranepa;
 			packageProductDependencies = (
+				0DA751B4459B80FEB6CAEACE /* TelemetryDeck */,
 			);
 			productName = Ranepa;
 			productReference = A923FC78AEC5710C4C4F3544 /* Ranepa.app */;
@@ -501,6 +521,9 @@
 			);
 			mainGroup = B630F3F0AD8A24FD107DF9C8;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				58D9522907A167C72806C4C0 /* XCRemoteSwiftPackageReference "SwiftSDK" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = EDBFFE8E030560712FE27280 /* Products */;
 			projectDirPath = "";
@@ -560,6 +583,7 @@
 			files = (
 				AF32F42A386C984FC03CFBAD /* AboutView.swift in Sources */,
 				81F8AF385A56C155AE7C9DC5 /* AccountView.swift in Sources */,
+				66C02D4BFF2BF7BA6B3A4B85 /* Analytics.swift in Sources */,
 				4E8C752E1813A98D5859F1F1 /* AppState.swift in Sources */,
 				CE35F73666D81AB487A4126B /* AuthViews.swift in Sources */,
 				7E4A3143827B0F016DA0B9E9 /* Background.swift in Sources */,
@@ -608,6 +632,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				44D5135126434741847AF1F6 /* AnalyticsTests.swift in Sources */,
 				39D55AD8D56DF1C7B64EA63D /* DemoTests.swift in Sources */,
 				302126585882BA012D464779 /* ExamSessionTests.swift in Sources */,
 				DC2EEE4B4B0118134A9ED463 /* LiveActivityPlanTests.swift in Sources */,
@@ -680,6 +705,7 @@
 				PRODUCT_NAME = Ranepa;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TELEMETRYDECK_APP_ID = "8FA78C02-5E0B-49EF-BB56-706620C52402";
 			};
 			name = TestTools;
 		};
@@ -699,6 +725,7 @@
 				PRODUCT_NAME = Ranepa;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TELEMETRYDECK_APP_ID = "8FA78C02-5E0B-49EF-BB56-706620C52402";
 			};
 			name = Debug;
 		};
@@ -886,6 +913,7 @@
 				PRODUCT_NAME = Ranepa;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TELEMETRYDECK_APP_ID = "8FA78C02-5E0B-49EF-BB56-706620C52402";
 			};
 			name = Release;
 		};
@@ -1189,6 +1217,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		58D9522907A167C72806C4C0 /* XCRemoteSwiftPackageReference "SwiftSDK" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/TelemetryDeck/SwiftSDK";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.14.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0DA751B4459B80FEB6CAEACE /* TelemetryDeck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 58D9522907A167C72806C4C0 /* XCRemoteSwiftPackageReference "SwiftSDK" */;
+			productName = TelemetryDeck;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5B46BD7AEA6D63BFDACBB3E3 /* Project object */;
 }

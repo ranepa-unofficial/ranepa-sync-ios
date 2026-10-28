@@ -8,6 +8,10 @@ enum Links {
 
 /// Версия, справка, конфиденциальность и связь с разработчиком.
 struct AboutView: View {
+    @Environment(\.openURL) private var openURL
+    /// Возврат из вложенного экрана — не новое открытие.
+    @State private var counted = false
+
     private var version: String {
         let info = Bundle.main.infoDictionary
         return "\(info?["CFBundleShortVersionString"] ?? "") (\(info?["CFBundleVersion"] ?? ""))"
@@ -39,7 +43,10 @@ struct AboutView: View {
             }
             // Ссылки, которые открываются вне приложения.
             Section {
-                Link(destination: SupportLink.url) {
+                Button {
+                    Analytics.signal("Support.opened")
+                    openURL(SupportLink.url)
+                } label: {
                     externalRow("Поддержка в Telegram", icon: SettingsIcon(logo: "Telegram"))
                 }
                 Link(destination: Links.repo) {
@@ -55,6 +62,11 @@ struct AboutView: View {
         }
         .navigationTitle("О приложении")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+                guard !counted else { return }
+                counted = true
+                Analytics.screen("about")
+            }
     }
 
     private func externalRow(_ title: String, icon: SettingsIcon) -> some View {

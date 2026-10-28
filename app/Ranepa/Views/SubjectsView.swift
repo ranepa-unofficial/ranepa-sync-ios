@@ -20,6 +20,14 @@ struct RootView: View {
         // Уведомление, виджет или Пункт управления открывают расписание.
         .onChange(of: state.pendingLesson) { _, start in if start != nil { state.tab = .schedule } }
         .onChange(of: state.pendingToday) { _, today in if today { state.tab = .schedule } }
+        .onChange(of: state.tab) { _, tab in
+            switch tab {
+            case .schedule: break
+            case .subjects: Analytics.screen("subjects")
+            case .session: Analytics.screen("session")
+            case .search: Analytics.screen("search")
+            }
+        }
     }
 }
 

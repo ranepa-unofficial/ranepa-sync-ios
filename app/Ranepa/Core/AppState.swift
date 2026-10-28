@@ -99,11 +99,17 @@ final class AppState {
 
     /// Вызывается экраном входа, когда страница ЛК уже авторизована.
     func completeLogin(_ result: FetchResult, monday: Date) async {
+        // Повторный вход после истёкшей сессии за новый вход не считаем.
+        let relogin = loggedIn
         error = nil
         let sync = await Sync.save(result, monday: monday, d)
         loadCache()
         error = sync.sideEffectError
-        if !demo { Background.schedule() }
+        if !demo {
+            Background.schedule()
+            Analytics.start()
+            if !relogin { Analytics.signal("Login.completed") }
+        }
         // Разрешение нужно и для уведомлений об изменениях, не только для напоминаний.
         await checkNotifications(request: true)
     }
@@ -111,6 +117,7 @@ final class AppState {
     /// Вход в демо долгим нажатием на логотип стартового экрана.
     func startDemo() async {
         d.set(true, forKey: Keys.demo)
+        Analytics.stop()
         await completeLogin(Demo.fetch(d), monday: Clock.now.monday)
     }
 
@@ -162,11 +169,13 @@ final class AppState {
                 error = LKError.serverBusy(status: 503, retryAfter: nil).errorDescription
             }
         } catch LKError.needLogin {
+            Analytics.syncFailed(LKError.needLogin, trigger: trigger)
             d.set(true, forKey: Keys.sessionExpired)
             sessionExpired = true
             sessionCardHidden = false
             Notifications.cancelKeepAlive()
         } catch {
+            Analytics.syncFailed(error, trigger: trigger)
             self.error = error.localizedDescription
         }
     }

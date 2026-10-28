@@ -1,14 +1,14 @@
 # Политика конфиденциальности «Расписание студента»
 
-Дата вступления в силу: 14 октября 2026 г.
+Дата вступления в силу: 26 октября 2026 г.
 
 «Расписание студента» — неофициальное приложение для студентов РАНХиГС. Оно не связано с РАНХиГС и не поддерживается академией.
 
 ## Что приложение не делает
 
-- Не собирает и не передаёт разработчику никаких данных. У приложения нет своих серверов.
 - Не видит и не сохраняет логин и пароль от личного кабинета.
-- Не использует аналитику, рекламу и трекинг, не передаёт данные третьим лицам.
+- Не передаёт разработчику и третьим лицам расписание, ФИО, группу и другие данные из личного кабинета. У приложения нет своих серверов.
+- Не показывает рекламу, не отслеживает вас в других приложениях и на сайтах.
 
 ## Как работает вход
 
@@ -34,6 +34,18 @@
 
 Приложение обновляет расписание в фоне: в будни днём — примерно раз в час, ночью и в субботу — реже, в воскресенье — раз в 12 часов. Время запуска выбирает система телефона. Запросы идут только на сайт личного кабинета РАНХиГС — так же, как при ручном обновлении. Каждое обновление продлевает сессию личного кабинета, поэтому входить заново не нужно.
 
+## Анонимная статистика
+
+Чтобы понимать, сколько человек пользуется приложением и какие разделы нужны, приложение отправляет анонимную статистику в сервис TelemetryDeck (TelemetryDeck GmbH, Германия; данные хранятся в ЕС).
+
+- **Идентификатор.** При первом запуске приложение создаёт случайный идентификатор установки. На сервис уходит только его хэш, вычисленный на устройстве; TelemetryDeck хэширует его ещё раз. Связать его с вами, вашим логином или устройством нельзя.
+- **Что отправляется.** Открытие приложения (начало сессии), успешный вход в личный кабинет, неудачное обновление расписания (только причина: нет сети, истекла сессия, ЛК недоступен), открытие разделов «Предметы», «Сессия», «Поиск», «Аккаунт», «О приложении», нажатие «Поддержка в Telegram» и раз в день — какие функции включены (напоминание, уведомления, календарь, Live Activity, виджет, Apple Watch, оформление).
+- **Вместе с событием** — версия приложения и системы, модель устройства и размер экрана, язык, регион и часовой пояс, тема и размер шрифта.
+- **Не отправляется** логин, пароль, ФИО, группа, расписание, IP-адрес (TelemetryDeck его не сохраняет), рекламный идентификатор.
+- Фоновое обновление, виджеты и часы статистику не отправляют. В демо-режиме её нет.
+
+Политика TelemetryDeck: https://telemetrydeck.com/privacy/
+
 ## Разрешения
 
 - **Уведомления** — для напоминаний перед парами, сообщений об изменениях в расписании (перенос, отмена, новая пара, другая аудитория) и напоминания открыть приложение, если оно давно не обновлялось и сессия скоро истечёт. Все уведомления создаются на самом устройстве.
@@ -51,7 +63,7 @@
 - данные виджета;
 - календарь «РАНХиГС».
 
-При удалении приложения с телефона удаляются все его данные.
+При удалении приложения с телефона удаляются все его данные, включая идентификатор статистики. Уже отправленная статистика анонимна и хранится в TelemetryDeck в обобщённом виде.
 
 ## TestFlight
 
@@ -67,15 +79,15 @@
 
 # Privacy Policy — "Расписание студента" (Student Timetable)
 
-Effective date: October 14, 2026
+Effective date: October 26, 2026
 
 This is an unofficial app for RANEPA students. It is not affiliated with or endorsed by RANEPA.
 
 ## What the app does not do
 
-- It does not collect any data or send it to the developer. The app has no servers of its own.
 - It never sees or stores your student portal username or password.
-- It uses no analytics, advertising or tracking, and shares no data with third parties.
+- It does not send your timetable, name, group or any other portal data to the developer or third parties. The app has no servers of its own.
+- It shows no ads and does not track you across other apps or websites.
 
 ## How sign-in works
 
@@ -101,6 +113,18 @@ This data stays on your device and is never transmitted elsewhere.
 
 The app updates your timetable in the background: about once an hour on weekday daytime, less often at night and on Saturdays, and every 12 hours on Sundays. Your phone's system decides exactly when to run them. Requests go only to the RANEPA student portal, the same as a manual refresh. Each update extends your portal session, so you don't need to sign in again.
 
+## Anonymous usage statistics
+
+To understand how many people use the app and which sections matter, the app sends anonymous usage statistics to TelemetryDeck (TelemetryDeck GmbH, Germany; data stored in the EU).
+
+- **Identifier.** On first launch the app creates a random installation identifier. Only a hash of it, computed on the device, is sent; TelemetryDeck hashes it again. It cannot be linked to you, your username or your device.
+- **What is sent.** App opens (session starts), a successful portal sign-in, a failed timetable update (only the reason: no network, session expired, portal unavailable), opening the Subjects, Session, Search, Account and About sections, tapping "Support in Telegram", and once a day which features are on (reminder, notifications, calendar, Live Activity, widget, Apple Watch, appearance).
+- **Sent with each event:** app and OS version, device model and screen size, language, region and time zone, appearance and text size.
+- **Never sent:** your username, password, name, group, timetable, IP address (TelemetryDeck does not store it) or advertising identifier.
+- Background updates, widgets and the watch app send no statistics. Demo mode sends none.
+
+TelemetryDeck's policy: https://telemetrydeck.com/privacy/
+
 ## Permissions
 
 - **Notifications**: for reminders before classes, alerts about timetable changes (a class moved, cancelled, added or moved to another room), and a reminder to open the app if it hasn't updated for a long time and your session is about to expire. All notifications are created on the device itself.
@@ -118,7 +142,7 @@ Both permissions are optional. You can revoke them in your phone's settings.
 - the widget's data;
 - the "РАНХиГС" calendar.
 
-Deleting the app removes all of its data.
+Deleting the app removes all of its data, including the statistics identifier. Statistics already sent are anonymous and kept by TelemetryDeck in aggregated form.
 
 ## TestFlight
 

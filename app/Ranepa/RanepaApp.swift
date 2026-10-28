@@ -6,6 +6,7 @@ import UserNotifications
 struct RanepaApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @State private var state = AppState()
+    @Environment(\.scenePhase) private var scenePhase
 
     init() {
         WatchSync.shared.activate()
@@ -46,6 +47,11 @@ struct RanepaApp: App {
                 state.applyTheme()
                 // Задача могла не зарегистрироваться (обновление со старой версии).
                 if state.loggedIn && !state.demo { Background.schedule() }
+            }
+            .onChange(of: scenePhase, initial: true) { _, phase in
+                guard phase == .active else { return }
+                Analytics.start()
+                Task { await Analytics.daily(state) }
             }
             // ranepa://lesson?start=<секунды по настоящим часам> — из Live
             // Activity и виджета, ranepa://today — из Пункта управления.
