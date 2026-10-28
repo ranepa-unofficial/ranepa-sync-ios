@@ -13,9 +13,9 @@ enum Analytics {
     static let appID = Bundle.main.object(forInfoDictionaryKey: "TelemetryDeckAppID") as? String ?? ""
     private static var started = false
 
-    /// Выключена в демо, на скриншотах и переключателем в настройках.
+    /// Выключена в демо и на скриншотах.
     static func allowed(_ d: UserDefaults = .standard) -> Bool {
-        !appID.isEmpty && d.bool(Keys.analytics, default: true) && !d.bool(forKey: Keys.demo)
+        !appID.isEmpty && !d.bool(forKey: Keys.demo)
             && !Clock.screenshotMode && !Clock.recordingMode
     }
 

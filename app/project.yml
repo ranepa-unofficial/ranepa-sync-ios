@@ -50,7 +50,7 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         INFOPLIST_FILE: Ranepa/Info.plist
         # App ID приложения в TelemetryDeck; пустой — статистика выключена.
-        TELEMETRYDECK_APP_ID: ""
+        TELEMETRYDECK_APP_ID: 8FA78C02-5E0B-49EF-BB56-706620C52402
     info:
       path: Ranepa/Info.plist
       properties:

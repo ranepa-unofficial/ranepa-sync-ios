@@ -705,7 +705,7 @@
 				PRODUCT_NAME = Ranepa;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TELEMETRYDECK_APP_ID = "";
+				TELEMETRYDECK_APP_ID = "8FA78C02-5E0B-49EF-BB56-706620C52402";
 			};
 			name = TestTools;
 		};
@@ -725,7 +725,7 @@
 				PRODUCT_NAME = Ranepa;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TELEMETRYDECK_APP_ID = "";
+				TELEMETRYDECK_APP_ID = "8FA78C02-5E0B-49EF-BB56-706620C52402";
 			};
 			name = Debug;
 		};
@@ -913,7 +913,7 @@
 				PRODUCT_NAME = Ranepa;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TELEMETRYDECK_APP_ID = "";
+				TELEMETRYDECK_APP_ID = "8FA78C02-5E0B-49EF-BB56-706620C52402";
 			};
 			name = Release;
 		};

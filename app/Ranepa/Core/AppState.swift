@@ -39,7 +39,6 @@ final class AppState {
     var calendarExport = false
     var liveActivity = true
     var themeMode = 0
-    var analytics = true
     var fullName: String?
     var group: String?
     var program: String?
@@ -88,7 +87,6 @@ final class AppState {
         calendarExport = d.bool(forKey: Keys.calendarExport)
         liveActivity = d.bool(Keys.liveActivity, default: true)
         themeMode = d.integer(forKey: Keys.themeMode)
-        analytics = d.bool(Keys.analytics, default: true)
         fullName = d.string(forKey: Keys.fullName)
         group = d.string(forKey: Keys.group)
         program = d.string(forKey: Keys.program)
@@ -224,12 +222,6 @@ final class AppState {
         await LiveActivities.update(lessons, enabled: loggedIn && liveActivity, reminderMinutes: reminderMinutes)
         // Если активность видна, фон уберёт её после последней пары.
         if loggedIn && !demo { Background.schedule() }
-    }
-
-    func setAnalytics(_ enabled: Bool) {
-        d.set(enabled, forKey: Keys.analytics)
-        analytics = enabled
-        if enabled { Analytics.start() } else { Analytics.stop() }
     }
 
     func setThemeMode(_ mode: Int) {

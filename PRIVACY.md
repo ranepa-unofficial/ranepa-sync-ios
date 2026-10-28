@@ -44,7 +44,7 @@
 - **Не отправляется** логин, пароль, ФИО, группа, расписание, IP-адрес (TelemetryDeck его не сохраняет), рекламный идентификатор.
 - Фоновое обновление, виджеты и часы статистику не отправляют. В демо-режиме её нет.
 
-Статистику можно выключить переключателем «Анонимная статистика» на экране аккаунта. Политика TelemetryDeck: https://telemetrydeck.com/privacy/
+Политика TelemetryDeck: https://telemetrydeck.com/privacy/
 
 ## Разрешения
 
@@ -123,7 +123,7 @@ To understand how many people use the app and which sections matter, the app sen
 - **Never sent:** your username, password, name, group, timetable, IP address (TelemetryDeck does not store it) or advertising identifier.
 - Background updates, widgets and the watch app send no statistics. Demo mode sends none.
 
-You can turn statistics off with the "Анонимная статистика" switch on the account screen. TelemetryDeck's policy: https://telemetrydeck.com/privacy/
+TelemetryDeck's policy: https://telemetrydeck.com/privacy/
 
 ## Permissions
 
