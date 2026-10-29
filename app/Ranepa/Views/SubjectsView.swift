@@ -137,12 +137,16 @@ private struct SubjectRow: View {
                     .foregroundStyle(subject.lessons.isEmpty ? Color.orange : .secondary)
                     .lineLimit(1)
                 if let points = entry.points {
-                    // Одной длины во всех строках, как бы ни был широк значок справа.
+                    // Одной длины, пока хватает места; тесно — сжимается полоска,
+                    // а не число и не название.
                     HStack(spacing: 8) {
-                        PointsBar(points: points).frame(width: 150)
+                        PointsBar(points: points)
+                            .frame(minWidth: 40, maxWidth: 150)
+                            .layoutPriority(-1)
                         Text("\(points)")
                             .font(.subheadline.weight(.semibold))
                             .monospacedDigit()
+                            .fixedSize()
                     }
                     .padding(.top, 4)
                     .accessibilityElement(children: .ignore)
