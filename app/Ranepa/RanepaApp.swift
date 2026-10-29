@@ -104,7 +104,9 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
 
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
-        [.banner, .list, .sound]
+        // Изменения в расписании открытое приложение уже показало своим
+        // баннером — второй сверху не нужен, только запись в Центре уведомлений.
+        Notifications.isChanges(notification.request.identifier) ? [.list] : [.banner, .list, .sound]
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {

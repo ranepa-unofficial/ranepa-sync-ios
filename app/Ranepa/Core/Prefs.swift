@@ -39,6 +39,11 @@ enum Keys {
     static let plan = "plan"
     /// Когда последний раз отправили, какие функции включены.
     static let analyticsDailyAt = "analyticsDailyAt"
+    /// Текущая успеваемость (JSON Progress) и баллы по дням для «за неделю».
+    static let progress = "progress"
+    static let progressHistory = "progressHistory"
+    /// Уведомлять о новых баллах БРС.
+    static let gradeNotifications = "gradeNotifications"
     /// Манифест обновлений (update.json), когда его загрузили и какую
     /// новую версию уже видели в аккаунте. При выходе не удаляются.
     static let updateManifest = "updateManifest"
@@ -53,7 +58,7 @@ enum Keys {
         loggedIn, days, group, fetchedAt, rangeStart, sessionExpiredNotified, sessionExpired,
         lastBackgroundRun, lastBackgroundResult, fullName, program, photo,
         photoFetchedAt, lastFullAt, lastSemesterAt, lastAttemptAt, backoffUntil, backoffFailures,
-        demo, demoRevision, demoShift, demoFastFrom, sessionUntil, plan,
+        demo, demoRevision, demoShift, demoFastFrom, sessionUntil, plan, progress, progressHistory,
     ]
 }
 

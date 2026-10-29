@@ -5,6 +5,7 @@ enum Route: Hashable {
     case subject(String)
     case lecturer(String)
     case plan
+    case grades
 }
 
 extension View {
@@ -17,6 +18,7 @@ extension View {
                 case .subject(let name): SubjectView(name: name)
                 case .lecturer(let name): LecturerView(name: name)
                 case .plan: PlanView()
+                case .grades: GradesView()
                 }
             }
             .onAppear(perform: shown)

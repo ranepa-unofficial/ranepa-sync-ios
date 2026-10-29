@@ -153,7 +153,9 @@ enum Sync {
         do {
             result = try await LKWebView.refresh(monday: monday, weeks: weeks,
                                                  stopAfterEmpty: semester ? emptyWeeksToStop : nil,
-                                                 withProfile: full, withPhoto: full && photoStale(d), withPlan: semester)
+                                                 withProfile: full, withPhoto: full && photoStale(d), withPlan: semester,
+                                                 // Баллы — раз в день и по «потянуть вниз».
+                                                 withProgress: full || trigger == .manual)
         } catch LKError.serverBusy(let status, let retryAfter) {
             startBackoff(d, retryAfter: retryAfter)
             throw LKError.serverBusy(status: status, retryAfter: retryAfter)
@@ -227,6 +229,7 @@ enum Sync {
         d.setTime(Clock.now, Keys.fetchedAt)
         if let until = result.sessionUntil { d.setTime(until, Keys.sessionUntil) }
         if let plan = result.plan { d.set(plan, forKey: Keys.plan) }
+        let gradeChanges = saveProgress(result.progress, d)
         if full { d.setTime(Clock.now, Keys.lastFullAt) }
         if replaceAll {
             d.setTime(monday, Keys.rangeStart)
@@ -236,8 +239,18 @@ enum Sync {
         d.removeObject(forKey: Keys.sessionExpiredNotified)
         d.removeObject(forKey: Keys.sessionExpired)
 
+        if d.bool(forKey: Keys.gradeNotifications) { await Notifications.showGrades(gradeChanges) }
         return SyncResult(changes: hadCache ? describeChanges(before: before, after: after, now: Clock.now) : [],
                           sideEffectError: await applySideEffects(after, d))
+    }
+
+    /// Сохраняет успеваемость; возвращает изменившиеся баллы. Пустой ответ
+    /// (ЛК не отдал блок) прошлые данные не стирает.
+    static func saveProgress(_ raw: [String: Any]?, _ d: UserDefaults) -> [String] {
+        guard let raw, let fresh = Progress(raw, at: Clock.now), !fresh.isEmpty else { return [] }
+        let old = Progress.cached(d)
+        fresh.save(d)
+        return old.map { Progress.changes(from: $0, to: fresh) } ?? []
     }
 
     /// Сохранённые дни вне загруженных недель + свежие дни.

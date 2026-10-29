@@ -238,7 +238,8 @@ struct LoginView: View {
         do {
             let monday = Date().monday
             let result = try await lk.fetch(template, monday: monday, weeks: semesterWeeks,
-                                            stopAfterEmpty: emptyWeeksToStop, withPhoto: true, withPlan: true)
+                                            stopAfterEmpty: emptyWeeksToStop, withPhoto: true, withPlan: true,
+                                            withProgress: true)
             timeout?.cancel()
             await state.completeLogin(result, monday: monday)
             if inSheet { dismiss() }

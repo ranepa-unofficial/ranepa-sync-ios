@@ -10,6 +10,7 @@ enum Notifications {
     private static let maxScheduled = 52
     private static let maxExams = 8
     private static let changesID = "changes"
+    private static let gradesID = "grades"
     private static let sessionID = "session"
     private static let keepAliveID = "keepAlive"
     private static let testID = "test"
@@ -60,7 +61,7 @@ enum Notifications {
         // Только запланированные: уже показанное «расписание изменилось» не трогаем.
         let pending = await center.pendingNotificationRequests()
             .map(\.identifier)
-            .filter { ![changesID, sessionID, keepAliveID].contains($0) && !$0.hasPrefix("exam-") }
+            .filter { ![changesID, gradesID, sessionID, keepAliveID].contains($0) && !$0.hasPrefix("exam-") }
         center.removePendingNotificationRequests(withIdentifiers: pending)
         await removeStale()
         guard minutes > 0 else { return }
@@ -144,14 +145,29 @@ enum Notifications {
         try? await center.add(UNNotificationRequest(identifier: id, content: content, trigger: trigger))
     }
 
+    /// Изменения, найденные в открытом приложении, уже на экране баннером:
+    /// системное уведомление тогда только ложится в Центр уведомлений.
+    static func isChanges(_ id: String) -> Bool { id == changesID }
+
     /// Одно уведомление на все изменения: первые строки и «и ещё N».
-    static func showChanges(_ changes: [String]) async {
+    /// Приходит при любом обновлении — фоновом, при открытии и по «потянуть
+    /// вниз»: приложение могли свернуть, пока шло обновление.
+    static func showChanges(_ changes: [String], at date: Date? = nil) async {
         guard !changes.isEmpty else { return }
         let shown = 3
         var lines = Array(changes.prefix(shown))
         if changes.count > shown { lines.append("и ещё \(changes.count - shown)") }
         await show(changesID, title: changes.count == 1 ? "Изменение в расписании" : "Изменения в расписании",
-                   body: lines.joined(separator: "\n"))
+                   body: lines.joined(separator: "\n"), at: date)
+    }
+
+    /// «Информатика: 16 → 24 балла» — одно уведомление на все предметы.
+    static func showGrades(_ changes: [String]) async {
+        guard !changes.isEmpty else { return }
+        let shown = 3
+        var lines = Array(changes.prefix(shown))
+        if changes.count > shown { lines.append("и ещё \(changes.count - shown)") }
+        await show(gradesID, title: "Новые баллы", body: lines.joined(separator: "\n"))
     }
 
     static func showSessionExpired() async {

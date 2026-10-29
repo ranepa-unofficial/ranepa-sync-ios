@@ -128,7 +128,27 @@ enum Demo {
             days.append(["date": moscowStamp(day), "discs": discs])
         }
         return FetchResult(days: days, group: group, program: program, fullName: name,
-                           plan: plan(monday: monday))
+                           plan: plan(monday: monday), progress: progress(now: now, revision: revision))
+    }
+
+    /// Успеваемость в формате ЛК: метки дисциплин с приписками, как на сайте.
+    /// Каждое «потянуть вниз» добавляет баллы по математике — видно
+    /// уведомление о новых баллах.
+    static func progress(now: Date, revision: Int = 0) -> [String: Any] {
+        let points = [34, 41, 28, 55, 22 + 4 * revision, 37, 46, 31]
+        let labels = subjects.enumerated().map { i, s in
+            i == 2 ? "\(s.0)_ОАФ_1 курс_B1-B2 [1 семестр] [] []" : "\(s.0) [1 семестр] [] []"
+        }
+        // Семестр с сентября по январь; прошедшие месяцы посещены почти все.
+        let names = ["Сентябрь", "Октябрь", "Ноябрь", "Декабрь", "Январь"]
+        let plans = [63, 77, 63, 50, 5]
+        let current = [9: 0, 10: 1, 11: 2, 12: 3, 1: 4][now.month] ?? 4
+        let visits = names.indices.map { i -> [String: Any] in
+            let fact = i < current ? plans[i] * 9 / 10 : i == current ? plans[i] * 2 / 3 * now.day / 30 : 0
+            return ["monthName": names[i], "maxValue": plans[i], "currentValue": fact]
+        }
+        return ["brs": ["labels": labels, "data": points.map { min($0, 100) }],
+                "visits": ["items": visits], "avg_brs": NSNull(), "rating": NSNull()]
     }
 
     /// План обучения: формы контроля по предметам и сессия — те две недели,

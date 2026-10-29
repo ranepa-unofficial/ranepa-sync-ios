@@ -44,10 +44,23 @@ struct SubjectsView: View {
         let name: String
         let form: String?
         let subject: Subject
+        /// Баллы БРС; nil — у предмета их нет.
+        var points: Int?
         var id: String { name }
     }
 
     private func entries(now: Date) -> [Entry] {
+        var list = baseEntries(now: now)
+        guard let progress = state.progress else { return list }
+        for i in list.indices { list[i].points = progress.points(for: list[i].name) }
+        // Предметы с баллами, которых нет ни в плане, ни в расписании.
+        for s in progress.subjects where !list.contains(where: { $0.name.lowercased() == s.name.lowercased() }) {
+            list.append(Entry(name: s.name, form: nil, subject: Subject(name: s.name, lessons: [], now: now), points: s.points))
+        }
+        return list
+    }
+
+    private func baseEntries(now: Date) -> [Entry] {
         let fromSchedule = Subject.all(state.lessons, now: now)
         guard let plan = state.plan, let semester = plan.currentSemester(now: now) else {
             return fromSchedule.map { Entry(name: $0.name, form: nil, subject: $0) }
@@ -71,6 +84,11 @@ struct SubjectsView: View {
         let semester = state.plan?.currentSemester(now: now)
         NavigationStack {
             List {
+                if let progress = state.progress, progress.averagePoints != nil || progress.currentMonth != nil {
+                    Section {
+                        NavigationLink(value: Route.grades) { GradesCard(progress: progress) }
+                    }
+                }
                 Section(list.isEmpty ? "" : "Предметы семестра · \(list.count)") {
                     ForEach(list) { e in
                         NavigationLink(value: Route.subject(e.name)) { SubjectRow(entry: e) }
@@ -118,6 +136,22 @@ private struct SubjectRow: View {
                     .font(.subheadline)
                     .foregroundStyle(subject.lessons.isEmpty ? Color.orange : .secondary)
                     .lineLimit(1)
+                if let points = entry.points {
+                    // Одной длины, пока хватает места; тесно — сжимается полоска,
+                    // а не число и не название.
+                    HStack(spacing: 8) {
+                        PointsBar(points: points)
+                            .frame(minWidth: 40, maxWidth: 150)
+                            .layoutPriority(-1)
+                        Text("\(points)")
+                            .font(.subheadline.weight(.semibold))
+                            .monospacedDigit()
+                            .fixedSize()
+                    }
+                    .padding(.top, 4)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("\(points) из 100 баллов")
+                }
             }
             Spacer(minLength: 4)
             if let form = entry.form { FormBadge(form: form) }
