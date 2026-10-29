@@ -62,4 +62,17 @@ final class DemoTests: XCTestCase {
         XCTAssertEqual(changes.count, 1)
         XCTAssertTrue(changes[0].contains("аудитория:"), changes[0])
     }
+
+    /// Демо-успеваемость в формате ЛК: все предметы демо-расписания с баллами,
+    /// «потянуть вниз» меняет баллы по математике.
+    func testDemoProgress() throws {
+        let now = date(2026, 10, 13, 11)
+        let progress = try XCTUnwrap(Progress(Demo.progress(now: now), at: now))
+        let names = Set(parseLessons(Demo.result(now: now).days).map(\.subject))
+        XCTAssertEqual(progress.subjects.count, 8)
+        XCTAssertTrue(progress.subjects.allSatisfy { names.contains($0.name) }, "\(progress.subjects.map(\.name))")
+        XCTAssertEqual(progress.currentMonth?.name, "Октябрь")
+        let next = try XCTUnwrap(Progress(Demo.progress(now: now, revision: 1), at: now))
+        XCTAssertEqual(Progress.changes(from: progress, to: next), ["Математика: 22 → 26 баллов"])
+    }
 }

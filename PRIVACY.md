@@ -1,6 +1,6 @@
 # Политика конфиденциальности «Расписание студента»
 
-Дата вступления в силу: 30 октября 2026 г.
+Дата вступления в силу: 31 октября 2026 г.
 
 «Расписание студента» — неофициальное приложение для студентов РАНХиГС. Оно не связано с РАНХиГС и не поддерживается академией.
 
@@ -20,10 +20,12 @@
 
 - Расписание: пары, аудитории, преподаватели и их рабочая почта, группы, ссылки на курсы в СДО.
 - Профиль: фамилия, имя и отчество, группа, программа обучения и фотография из личного кабинета. Они показываются на экране аккаунта. Фотография уменьшается и сохраняется на устройстве; заново она загружается не чаще раза в неделю.
+- Текущая успеваемость: баллы балльно-рейтинговой системы по предметам семестра, посещаемость по месяцам и средний балл — то же, что в разделе «Успеваемость» личного кабинета. Загружается раз в день и при обновлении жестом «потянуть вниз».
 
 ## Какие данные хранятся на устройстве
 
-- Расписание и профиль из списка выше — чтобы приложение работало без интернета.
+- Расписание, профиль и успеваемость из списка выше — чтобы приложение работало без интернета.
+- Баллы по предметам за последние три недели — чтобы показать, насколько они выросли за неделю.
 - Время последнего обновления и результат последнего фонового обновления.
 - Настройки приложения.
 - Ближайшие пары для виджета на главном экране. Они хранятся в общей области приложения и его виджета на этом же устройстве.
@@ -39,16 +41,16 @@
 Чтобы понимать, сколько человек пользуется приложением и какие разделы нужны, приложение отправляет анонимную статистику в сервис TelemetryDeck (TelemetryDeck GmbH, Германия; данные хранятся в ЕС).
 
 - **Идентификатор.** При первом запуске приложение создаёт случайный идентификатор установки. На сервис уходит только его хэш, вычисленный на устройстве; TelemetryDeck хэширует его ещё раз. Связать его с вами, вашим логином или устройством нельзя.
-- **Что отправляется.** Открытие приложения (начало сессии), успешный вход в личный кабинет, неудачное обновление расписания (только причина: нет сети, истекла сессия, ЛК недоступен), открытие разделов «Предметы», «Сессия», «Поиск», «Аккаунт», «О приложении», нажатие «Поддержка в Telegram» и раз в день — какие функции включены (напоминание, уведомления, календарь, Live Activity, виджет, Apple Watch, оформление).
+- **Что отправляется.** Открытие приложения (начало сессии), успешный вход в личный кабинет, неудачное обновление расписания (только причина: нет сети, истекла сессия, ЛК недоступен), открытие разделов «Предметы», «Успеваемость», «Сессия», «Поиск», «Аккаунт», «О приложении», нажатие «Поддержка в Telegram» и раз в день — какие функции включены (напоминание, уведомления, календарь, Live Activity, виджет, Apple Watch, оформление).
 - **Вместе с событием** — версия приложения и системы, модель устройства и размер экрана, язык, регион и часовой пояс, тема и размер шрифта.
-- **Не отправляется** логин, пароль, ФИО, группа, расписание, IP-адрес (TelemetryDeck его не сохраняет), рекламный идентификатор.
+- **Не отправляется** логин, пароль, ФИО, группа, расписание, баллы и посещаемость, IP-адрес (TelemetryDeck его не сохраняет), рекламный идентификатор.
 - Фоновое обновление, виджеты и часы статистику не отправляют. В демо-режиме её нет.
 
 Политика TelemetryDeck: https://telemetrydeck.com/privacy/
 
 ## Разрешения
 
-- **Уведомления** — для напоминаний перед парами, сообщений об изменениях в расписании (перенос, отмена, новая пара, другая аудитория) и напоминания открыть приложение, если оно давно не обновлялось и сессия скоро истечёт. Все уведомления создаются на самом устройстве.
+- **Уведомления** — для напоминаний перед парами, сообщений об изменениях в расписании (перенос, отмена, новая пара, другая аудитория) напоминания открыть приложение, если оно давно не обновлялось и сессия скоро истечёт, а если включить — и сообщений о новых баллах. Все уведомления создаются на самом устройстве.
 - **Календарь** — только если включить выгрузку пар. Приложение создаёт отдельный календарь «РАНХиГС» и работает только с ним. Календарь создаётся средствами iOS: если на устройстве включена синхронизация календарей iCloud, iOS может создать его в iCloud, и тогда Apple синхронизирует его между вашими устройствами по своим правилам.
 
 Оба разрешения необязательные. Их можно отозвать в настройках телефона.
@@ -83,7 +85,7 @@
 
 # Privacy Policy — "Расписание студента" (Student Timetable)
 
-Effective date: October 30, 2026
+Effective date: October 31, 2026
 
 This is an unofficial app for RANEPA students. It is not affiliated with or endorsed by RANEPA.
 
@@ -103,10 +105,12 @@ RANEPA's own policies govern how the portal handles your data.
 
 - Timetable: classes, rooms, lecturers and their work email addresses, groups, and links to courses in the university's learning system.
 - Profile: your full name, group, study programme and profile photo from the portal. They are shown on the account screen. The photo is downscaled and stored on your device, and is downloaded again at most once a week.
+- Current academic progress: points in the university's grading system for this semester's subjects, attendance by month and your average grade, the same as in the portal's "Успеваемость" section. Downloaded once a day and when you pull down to refresh.
 
 ## Data stored on your device
 
-- The timetable and profile listed above, so the app works offline.
+- The timetable, profile and academic progress listed above, so the app works offline.
+- Subject points for the last three weeks, to show how much they grew in a week.
 - The time of the last update and the result of the last background update.
 - App settings.
 - Upcoming classes for the home screen widget. They are kept in a storage area shared by the app and its widget on the same device.
@@ -122,16 +126,16 @@ The app updates your timetable in the background: about once an hour on weekday 
 To understand how many people use the app and which sections matter, the app sends anonymous usage statistics to TelemetryDeck (TelemetryDeck GmbH, Germany; data stored in the EU).
 
 - **Identifier.** On first launch the app creates a random installation identifier. Only a hash of it, computed on the device, is sent; TelemetryDeck hashes it again. It cannot be linked to you, your username or your device.
-- **What is sent.** App opens (session starts), a successful portal sign-in, a failed timetable update (only the reason: no network, session expired, portal unavailable), opening the Subjects, Session, Search, Account and About sections, tapping "Support in Telegram", and once a day which features are on (reminder, notifications, calendar, Live Activity, widget, Apple Watch, appearance).
+- **What is sent.** App opens (session starts), a successful portal sign-in, a failed timetable update (only the reason: no network, session expired, portal unavailable), opening the Subjects, Academic progress, Session, Search, Account and About sections, tapping "Support in Telegram", and once a day which features are on (reminder, notifications, calendar, Live Activity, widget, Apple Watch, appearance).
 - **Sent with each event:** app and OS version, device model and screen size, language, region and time zone, appearance and text size.
-- **Never sent:** your username, password, name, group, timetable, IP address (TelemetryDeck does not store it) or advertising identifier.
+- **Never sent:** your username, password, name, group, timetable, points, attendance, IP address (TelemetryDeck does not store it) or advertising identifier.
 - Background updates, widgets and the watch app send no statistics. Demo mode sends none.
 
 TelemetryDeck's policy: https://telemetrydeck.com/privacy/
 
 ## Permissions
 
-- **Notifications**: for reminders before classes, alerts about timetable changes (a class moved, cancelled, added or moved to another room), and a reminder to open the app if it hasn't updated for a long time and your session is about to expire. All notifications are created on the device itself.
+- **Notifications**: for reminders before classes, alerts about timetable changes (a class moved, cancelled, added or moved to another room), a reminder to open the app if it hasn't updated for a long time and your session is about to expire, and, if you turn them on, alerts about new points. All notifications are created on the device itself.
 - **Calendar**: only if you turn on calendar export. The app creates a separate "РАНХиГС" calendar and works only with that calendar. The calendar is created through iOS: if iCloud Calendar sync is on, iOS may create it in iCloud, and Apple will then sync it across your devices under its own policy.
 
 Both permissions are optional. You can revoke them in your phone's settings.

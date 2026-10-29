@@ -27,6 +27,7 @@ struct SubjectView: View {
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
             }
+            if let progress = state.progress { SubjectGradesSection(name: name, progress: progress) }
             if let next = subject.next {
                 Section("Следующая") {
                     Button { lesson = next } label: { LessonListRow(lesson: next, showSubject: false) }

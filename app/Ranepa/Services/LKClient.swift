@@ -34,6 +34,8 @@ struct FetchResult {
     var sessionUntil: Date?
     /// План обучения (JSON StudyPlan) — при загрузке семестра.
     var plan: String?
+    /// Текущая успеваемость: ответ ЛК как есть (`dashboard/progress`).
+    var progress: [String: Any]?
 }
 
 enum LKError: LocalizedError {
@@ -138,7 +140,8 @@ final class LKWebView: NSObject, WKNavigationDelegate {
     /// С [stopAfterEmpty] останавливается после стольких пустых недель подряд
     /// (но не раньше месяца): дальше семестр кончился.
     func fetch(_ template: ScheduleTemplate, monday: Date, weeks: Int, stopAfterEmpty: Int? = nil,
-               withProfile: Bool = true, withPhoto: Bool = false, withPlan: Bool = false) async throws -> FetchResult {
+               withProfile: Bool = true, withPhoto: Bool = false, withPlan: Bool = false,
+               withProgress: Bool = false) async throws -> FetchResult {
         let urls = (0..<weeks).map { w in
             template.with(dates: (0..<7).map { monday.adding(days: w * 7 + $0) })
         }
@@ -150,6 +153,7 @@ final class LKWebView: NSObject, WKNavigationDelegate {
                 "stopAfterEmpty": stopAfterEmpty ?? 0, "minWeeks": fetchWeeks,
                 "groupsUrl": Self.groupsURL, "profileUrl": Self.profileURL, "photoUrl": Self.photoURL,
                 "withProfile": withProfile, "withPhoto": withPhoto, "withPlan": withPlan && withProfile,
+                "withProgress": withProgress,
             ], contentWorld: .page)
         } catch {
             throw LKError.message("Ошибка WebView: \(error.localizedDescription)")
@@ -169,7 +173,8 @@ final class LKWebView: NSObject, WKNavigationDelegate {
                            photo: data["photo"] as? String,
                            sessionUntil: (data["sessionUntil"] as? Double).map(Date.init(timeIntervalSince1970:)),
                            plan: (data["plan"] as? [String: Any]).flatMap { try? JSONSerialization.data(withJSONObject: $0) }
-                               .map { String(decoding: $0, as: UTF8.self) })
+                               .map { String(decoding: $0, as: UTF8.self) },
+                           progress: data["progress"] as? [String: Any])
     }
 
     // MARK: Без экрана
@@ -177,7 +182,8 @@ final class LKWebView: NSObject, WKNavigationDelegate {
     /// Обновление без интерфейса: невидимый WebView открывает ЛК с сохранёнными
     /// cookie и токенами. Страница сама обновит токен и запросит расписание.
     static func refresh(monday: Date, weeks: Int, stopAfterEmpty: Int? = nil,
-                        withProfile: Bool, withPhoto: Bool, withPlan: Bool = false) async throws -> FetchResult {
+                        withProfile: Bool, withPhoto: Bool, withPlan: Bool = false,
+                        withProgress: Bool = false) async throws -> FetchResult {
         let lk = LKWebView()
         // Вне окна WebKit усыпляет страницу: держим её в окне, но невидимой.
         if let window = UIApplication.shared.connectedScenes
@@ -190,7 +196,8 @@ final class LKWebView: NSObject, WKNavigationDelegate {
         defer { lk.webView.removeFromSuperview() }
         let template = try await lk.waitForTemplate(timeout: 60)
         return try await lk.fetch(template, monday: monday, weeks: weeks, stopAfterEmpty: stopAfterEmpty,
-                                  withProfile: withProfile, withPhoto: withPhoto, withPlan: withPlan)
+                                  withProfile: withProfile, withPhoto: withPhoto, withPlan: withPlan,
+                                  withProgress: withProgress)
     }
 
     private func waitForTemplate(timeout: TimeInterval) async throws -> ScheduleTemplate {
@@ -359,11 +366,21 @@ final class LKWebView: NSObject, WKNavigationDelegate {
       }
       // Профиль — необязательная часть: ошибка не должна ломать расписание.
       const out = { days: days };
-      if (withProfile) try {
+      if (withProfile || withProgress) try {
         const sg = ((await get(groupsUrl)).items || [])[0] || {};
-        out.group = sg.academic_group;
-        out.program = sg.edu_program_title;
+        if (withProfile) {
+          out.group = sg.academic_group;
+          out.program = sg.edu_program_title;
+        }
         out.uid = sg.uid_student;
+        out.org = sg.uid_org;
+      } catch (e) {}
+      // Текущая успеваемость: баллы БРС, посещаемость, средний балл — то,
+      // что ЛК показывает в разделе «Успеваемость».
+      if (withProgress && out.uid && out.org) try {
+        const base = groupsUrl.replace('manual/student-groups', '');
+        const r = await get(base + 'dashboard/progress?uidStudent=' + out.uid + '&uidOrg=' + out.org + '&code=progress');
+        if (r.data && r.data.content) out.progress = r.data.content;
       } catch (e) {}
       // План обучения: все семестры, формы контроля, даты сессий.
       if (withPlan && out.uid) try {
@@ -390,6 +407,7 @@ final class LKWebView: NSObject, WKNavigationDelegate {
         };
       } catch (e) {}
       delete out.uid;
+      delete out.org;
       if (withProfile) try {
         const p = (await get(profileUrl)).item || {};
         out.name = [p.last_name, p.first_name, p.middle_name].filter(Boolean).join(' ');
