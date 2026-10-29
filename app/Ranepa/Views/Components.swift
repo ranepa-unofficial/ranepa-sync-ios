@@ -288,9 +288,18 @@ struct AccountButton: View {
             action()
         } label: {
             AvatarView(size: 36)
+                // Новая версия, которую ещё не видели в аккаунте.
+                .overlay(alignment: .topTrailing) {
+                    if Updates.shared.unseen {
+                        Circle()
+                            .fill(.red)
+                            .frame(width: 11, height: 11)
+                            .overlay(Circle().stroke(Color(.systemBackground), lineWidth: 2))
+                    }
+                }
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Аккаунт и настройки")
+        .accessibilityLabel(Updates.shared.unseen ? "Аккаунт и настройки, доступна новая версия" : "Аккаунт и настройки")
     }
 }
 

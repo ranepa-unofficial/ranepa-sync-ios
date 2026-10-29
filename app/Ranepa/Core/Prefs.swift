@@ -39,6 +39,14 @@ enum Keys {
     static let plan = "plan"
     /// Когда последний раз отправили, какие функции включены.
     static let analyticsDailyAt = "analyticsDailyAt"
+    /// Манифест обновлений (update.json), когда его загрузили и какую
+    /// новую версию уже видели в аккаунте. При выходе не удаляются.
+    static let updateManifest = "updateManifest"
+    static let updateCheckedAt = "updateCheckedAt"
+    static let updateSeen = "updateSeen"
+    /// О какой версии и когда последний раз показывали лист «Вышла версия».
+    static let updateSheetVersion = "updateSheetVersion"
+    static let updateSheetShownAt = "updateSheetShownAt"
 
     /// Всё, что относится к сессии и удаляется при выходе.
     static let session = [

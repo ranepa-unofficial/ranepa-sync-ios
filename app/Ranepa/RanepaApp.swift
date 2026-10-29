@@ -6,7 +6,6 @@ import UserNotifications
 struct RanepaApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @State private var state = AppState()
-    @Environment(\.scenePhase) private var scenePhase
 
     init() {
         WatchSync.shared.activate()
@@ -29,6 +28,15 @@ struct RanepaApp: App {
                 }
             }
             .environment(state)
+            // Эта версия больше не работает — поверх всего, и до входа тоже.
+            .overlay {
+                if Updates.shared.status == .required {
+                    UpdateRequiredView(updates: Updates.shared)
+                }
+            }
+            .sheet(isPresented: Bindable(Updates.shared).showSheet) {
+                UpdateSheet(updates: Updates.shared)
+            }
             // Вход не удался — и со стартового экрана, и из листа повторного входа.
             .alert(state.loginFailure?.title ?? "", isPresented: Binding(
                 get: { state.loginFailure != nil },
@@ -48,11 +56,11 @@ struct RanepaApp: App {
                 // Задача могла не зарегистрироваться (обновление со старой версии).
                 if state.loggedIn && !state.demo { Background.schedule() }
             }
-            .onChange(of: scenePhase, initial: true) { _, phase in
-                guard phase == .active else { return }
+            .modifier(OnActive {
                 Analytics.start()
                 Task { await Analytics.daily(state) }
-            }
+                Task { await Updates.shared.check() }
+            })
             // ranepa://lesson?start=<секунды по настоящим часам> — из Live
             // Activity и виджета, ranepa://today — из Пункта управления.
             .onOpenURL { url in
@@ -66,6 +74,20 @@ struct RanepaApp: App {
         }
         .backgroundTask(.appRefresh(Background.taskID)) {
             await Background.run()
+        }
+    }
+}
+
+/// Каждый раз, когда приложение становится активным. scenePhase читаем здесь,
+/// внутри окна: @Environment в самой структуре App пересоздаёт сцену, и SwiftUI
+/// теряет AccentColor из ассетов — всё становится системно-синим.
+private struct OnActive: ViewModifier {
+    @Environment(\.scenePhase) private var scenePhase
+    let action: () -> Void
+
+    func body(content: Content) -> some View {
+        content.onChange(of: scenePhase, initial: true) { _, phase in
+            if phase == .active { action() }
         }
     }
 }
