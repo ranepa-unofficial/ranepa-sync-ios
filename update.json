@@ -1,6 +1,6 @@
 {
   "appstore": {
-    "latest": "2.0.0",
+    "latest": "2.2.0",
     "minimum": "2.0.0"
   },
   "testflight": {
