@@ -34,6 +34,8 @@ struct AccountView: View {
                     .listRowBackground(Color.clear)
                 }
 
+                UpdateRow(updates: Updates.shared)
+
                 Section {
                     if state.notificationsEnabled == false {
                         Button { explainNotifications = true } label: {
@@ -126,6 +128,7 @@ struct AccountView: View {
                 }
             }
             .onAppear {
+                Updates.shared.markSeen()
                 guard !counted else { return }
                 counted = true
                 Analytics.screen("account")

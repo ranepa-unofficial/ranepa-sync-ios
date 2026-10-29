@@ -29,6 +29,15 @@ struct RanepaApp: App {
                 }
             }
             .environment(state)
+            // Эта версия больше не работает — поверх всего, и до входа тоже.
+            .overlay {
+                if Updates.shared.status == .required {
+                    UpdateRequiredView(updates: Updates.shared)
+                }
+            }
+            .sheet(isPresented: Bindable(Updates.shared).showSheet) {
+                UpdateSheet(updates: Updates.shared)
+            }
             // Вход не удался — и со стартового экрана, и из листа повторного входа.
             .alert(state.loginFailure?.title ?? "", isPresented: Binding(
                 get: { state.loginFailure != nil },
@@ -52,6 +61,7 @@ struct RanepaApp: App {
                 guard phase == .active else { return }
                 Analytics.start()
                 Task { await Analytics.daily(state) }
+                Task { await Updates.shared.check() }
             }
             // ranepa://lesson?start=<секунды по настоящим часам> — из Live
             // Activity и виджета, ranepa://today — из Пункта управления.

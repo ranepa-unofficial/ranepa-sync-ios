@@ -1,6 +1,6 @@
 # Политика конфиденциальности «Расписание студента»
 
-Дата вступления в силу: 26 октября 2026 г.
+Дата вступления в силу: 30 октября 2026 г.
 
 «Расписание студента» — неофициальное приложение для студентов РАНХиГС. Оно не связано с РАНХиГС и не поддерживается академией.
 
@@ -65,6 +65,10 @@
 
 При удалении приложения с телефона удаляются все его данные, включая идентификатор статистики. Уже отправленная статистика анонимна и хранится в TelemetryDeck в обобщённом виде.
 
+## Проверка обновлений
+
+При открытии приложение не чаще раза в 3 часа скачивает с GitHub (запасной путь — CDN jsDelivr) небольшой файл с номерами актуальной и минимальной версий, чтобы предложить обновление. Это обычный запрос файла: приложение ничего в нём не отправляет. GitHub и jsDelivr, как любой сайт, видят IP-адрес запроса и обрабатывают его по своим правилам.
+
 ## TestFlight
 
 Во время бета-тестирования Apple может собирать отчёты о сбоях и отзывы, которые вы отправляете через TestFlight. Это происходит по правилам Apple: https://www.apple.com/legal/privacy/
@@ -79,7 +83,7 @@
 
 # Privacy Policy — "Расписание студента" (Student Timetable)
 
-Effective date: October 26, 2026
+Effective date: October 30, 2026
 
 This is an unofficial app for RANEPA students. It is not affiliated with or endorsed by RANEPA.
 
@@ -143,6 +147,10 @@ Both permissions are optional. You can revoke them in your phone's settings.
 - the "РАНХиГС" calendar.
 
 Deleting the app removes all of its data, including the statistics identifier. Statistics already sent are anonymous and kept by TelemetryDeck in aggregated form.
+
+## Update check
+
+When opened, at most once every 3 hours, the app downloads a small file from GitHub (with the jsDelivr CDN as a fallback) that lists the latest and minimum supported versions, so it can offer an update. It's a plain file request: the app sends nothing in it. Like any website, GitHub and jsDelivr see the request's IP address and handle it under their own policies.
 
 ## TestFlight
 

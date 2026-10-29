@@ -1,0 +1,12 @@
+{
+  "appstore": {
+    "latest": "2.0.0",
+    "minimum": "2.0.0"
+  },
+  "testflight": {
+    "latest": "2.2.0",
+    "latestBuild": 32,
+    "minimum": "2.0.0",
+    "minimumBuild": 0
+  }
+}
