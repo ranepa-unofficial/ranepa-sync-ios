@@ -169,6 +169,7 @@ final class AppState {
             // выглядеть как обычное обновление.
             if sync.skipped == .tooSoon { try? await Task.sleep(for: .milliseconds(500)) }
             pendingChanges = sync.changes
+            await Notifications.showChanges(sync.changes)
             error = sync.sideEffectError
             if sync.skipped == .backoff && trigger == .manual {
                 error = LKError.serverBusy(status: 503, retryAfter: nil).errorDescription

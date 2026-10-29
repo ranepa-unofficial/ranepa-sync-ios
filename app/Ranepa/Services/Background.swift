@@ -68,17 +68,24 @@ enum Background {
     static func debugShiftNextLesson() {
         var days = cachedDays()
         let now = Date()
+        // Дни в кэше не по порядку: ищем самую раннюю будущую пару, иначе
+        // можно сдвинуть пару через месяц — об изменениях дальше недели
+        // уведомление не приходит.
+        var nearest: (day: Int, disc: Int, start: Date)?
         for (i, day) in days.enumerated() {
-            guard var dayDict = day as? [String: Any], var discs = dayDict["discs"] as? [[String: Any]] else { continue }
+            let discs = (day as? [String: Any])?["discs"] as? [[String: Any]] ?? []
             for (j, disc) in discs.enumerated() {
-                guard let start = moscowDate("\(disc["start_date"] ?? "")"), start > now,
-                      let end = moscowDate("\(disc["end_date"] ?? "")") else { continue }
-                discs[j]["start_date"] = moscowStamp(start.addingTimeInterval(-3600))
-                discs[j]["end_date"] = moscowStamp(end.addingTimeInterval(-3600))
-                dayDict["discs"] = discs
-                days[i] = dayDict
-                return saveDays(days)
+                guard let start = moscowDate("\(disc["start_date"] ?? "")"), start > now else { continue }
+                if nearest.map({ start < $0.start }) ?? true { nearest = (i, j, start) }
             }
         }
+        guard let nearest, var dayDict = days[nearest.day] as? [String: Any],
+              var discs = dayDict["discs"] as? [[String: Any]],
+              let end = moscowDate("\(discs[nearest.disc]["end_date"] ?? "")") else { return }
+        discs[nearest.disc]["start_date"] = moscowStamp(nearest.start.addingTimeInterval(-3600))
+        discs[nearest.disc]["end_date"] = moscowStamp(end.addingTimeInterval(-3600))
+        dayDict["discs"] = discs
+        days[nearest.day] = dayDict
+        saveDays(days)
     }
 }

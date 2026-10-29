@@ -189,8 +189,11 @@ private struct DebugSection: View {
                     Task { await Notifications.showTest(lesson, minutes: min(max(state.reminderMinutes, 1), 60)) }
                 }
             }
-            debugRow("Уведомление об изменении", "Показать сразу, как после обновления") {
-                Task { await Notifications.showChanges(["Математика, ср 14.10: перенесли с 12:20 на 14:00"]) }
+            debugRow("Уведомление об изменении", "Через 5 секунд — сверни приложение") {
+                Task {
+                    await Notifications.showChanges(["Математика, ср 14.10: перенесли с 12:20 на 14:00"],
+                                                    at: Date().addingTimeInterval(5))
+                }
             }
             debugRow("Обновить Live Activity", "Запустить или обновить по сегодняшним парам") {
                 Task { await state.showLiveActivity() }
