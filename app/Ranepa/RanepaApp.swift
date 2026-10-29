@@ -6,7 +6,6 @@ import UserNotifications
 struct RanepaApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @State private var state = AppState()
-    @Environment(\.scenePhase) private var scenePhase
 
     init() {
         WatchSync.shared.activate()
@@ -57,12 +56,11 @@ struct RanepaApp: App {
                 // Задача могла не зарегистрироваться (обновление со старой версии).
                 if state.loggedIn && !state.demo { Background.schedule() }
             }
-            .onChange(of: scenePhase, initial: true) { _, phase in
-                guard phase == .active else { return }
+            .modifier(OnActive {
                 Analytics.start()
                 Task { await Analytics.daily(state) }
                 Task { await Updates.shared.check() }
-            }
+            })
             // ranepa://lesson?start=<секунды по настоящим часам> — из Live
             // Activity и виджета, ranepa://today — из Пункта управления.
             .onOpenURL { url in
@@ -76,6 +74,20 @@ struct RanepaApp: App {
         }
         .backgroundTask(.appRefresh(Background.taskID)) {
             await Background.run()
+        }
+    }
+}
+
+/// Каждый раз, когда приложение становится активным. scenePhase читаем здесь,
+/// внутри окна: @Environment в самой структуре App пересоздаёт сцену, и SwiftUI
+/// теряет AccentColor из ассетов — всё становится системно-синим.
+private struct OnActive: ViewModifier {
+    @Environment(\.scenePhase) private var scenePhase
+    let action: () -> Void
+
+    func body(content: Content) -> some View {
+        content.onChange(of: scenePhase, initial: true) { _, phase in
+            if phase == .active { action() }
         }
     }
 }
