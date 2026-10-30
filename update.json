@@ -4,9 +4,10 @@
     "minimum": "2.0.0"
   },
   "testflight": {
-    "latest": "2.2.0",
-    "latestBuild": 32,
+    "latest": "2.2.1",
+    "latestBuild": 33,
     "minimum": "2.0.0",
-    "minimumBuild": 0
+    "minimumBuild": 0,
+    "notes": "Баллы БРС и посещаемость на вкладке «Предметы», уведомления о новых баллах."
   }
 }
