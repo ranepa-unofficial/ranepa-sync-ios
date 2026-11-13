@@ -7,6 +7,12 @@
 > Приложение не связано с РАНХиГС и не поддерживается академией.
 
 <p align="center">
+  <a href="https://apps.apple.com/ru/app/id6822034998"><img src="docs/badges/appstore-badge-ru.svg" height="48" alt="Загрузите в App Store"></a>
+  &nbsp;
+  <a href="https://testflight.apple.com/join/evTDn2DB"><img src="docs/badges/testflight-badge-ru.svg" height="48" alt="Бета-версия в TestFlight"></a>
+</p>
+
+<p align="center">
   <img src="docs/images/schedule.jpg" width="24%" alt="Расписание">
   <img src="docs/images/lesson.jpg" width="24%" alt="Карточка пары">
   <img src="docs/images/session.jpg" width="24%" alt="Сессия">
@@ -15,8 +21,10 @@
 
 ## Установка
 
-Бета-версия — через [TestFlight](https://testflight.apple.com/join/evTDn2DB).
-Нужен iPhone или iPad с iOS 26.
+Приложение есть в [App Store](https://apps.apple.com/ru/app/id6822034998).
+Новые версии до выхода в App Store можно попробовать в [TestFlight](https://testflight.apple.com/join/evTDn2DB).
+Нужен iPhone или iPad с iOS 26. Версия для Android —
+[ranepa-sync-android](https://github.com/ranepa-unofficial/ranepa-sync-android).
 
 ## Что умеет
 
@@ -56,7 +64,7 @@ cd app && xcodegen generate && open Ranepa.xcodeproj
 ## Состояние
 
 Версия 1.x была на Flutter, с 2.0 приложение нативное (SwiftUI, iOS 26).
-Бета-версии раздаются через TestFlight.
+Стабильные версии выходят в App Store, бета-версии — в TestFlight.
 
 ## Лицензия
 
