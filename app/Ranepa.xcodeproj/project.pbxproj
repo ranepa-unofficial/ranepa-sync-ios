@@ -11,6 +11,7 @@
 		07358A8133639C0BA31EB1AE /* CalendarExport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9468FD91CB162D269B016603 /* CalendarExport.swift */; };
 		0C324248BDAB6BB356AF32D3 /* Campus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31F47E45E969B537A1CE4783 /* Campus.swift */; };
 		113EB897B8F89ED8D8AF91C5 /* RanepaWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = B55E87CFD806A9A1800FDB03 /* RanepaWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		170909E97E52200CDCCAAC03 /* IslandBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = C464A8EDF66900B1C3A90472 /* IslandBanner.swift */; };
 		172CC367A9EBFA8B14FFD3B0 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB335EA1DCB3CAFB17F32C /* Components.swift */; };
 		192D8C90FA51D3723026DE4D /* LecturerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1983755CA3C96F939265476E /* LecturerView.swift */; };
 		19357670AE3FAEC0E8B35818 /* Subjects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18F63FF50EB3BEC47772A6EB /* Subjects.swift */; };
@@ -205,6 +206,7 @@
 		B884B80DDC4664D677EEED98 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		B8F5C29B8FFEE667F30B63A6 /* GradesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradesView.swift; sourceTree = "<group>"; };
 		C1A0708D3D56C4621444EE86 /* Background.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Background.swift; sourceTree = "<group>"; };
+		C464A8EDF66900B1C3A90472 /* IslandBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IslandBanner.swift; sourceTree = "<group>"; };
 		C6E12A3FDE3A06395F97283D /* Exams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Exams.swift; sourceTree = "<group>"; };
 		C732ECF6116ECED4EF6BF3B0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D16240585307204C7B401A29 /* Controls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Controls.swift; sourceTree = "<group>"; };
@@ -283,6 +285,7 @@
 				5DFB335EA1DCB3CAFB17F32C /* Components.swift */,
 				B8F5C29B8FFEE667F30B63A6 /* GradesView.swift */,
 				6E390453ED75403003A12A1C /* HomeView.swift */,
+				C464A8EDF66900B1C3A90472 /* IslandBanner.swift */,
 				1983755CA3C96F939265476E /* LecturerView.swift */,
 				61D4B3FAF3B8ED55D063D641 /* LessonSheet.swift */,
 				0B3F0933FDE3223C67BA291D /* Pagers.swift */,
@@ -611,6 +614,7 @@
 				B862AA4EF76288DDDD31AB4F /* Format.swift in Sources */,
 				6003F864B522358846C43861 /* GradesView.swift in Sources */,
 				ACB3C01A7C0DF48C110ED7F5 /* HomeView.swift in Sources */,
+				170909E97E52200CDCCAAC03 /* IslandBanner.swift in Sources */,
 				FAB44E89034F08B4BD58AE33 /* LKClient.swift in Sources */,
 				192D8C90FA51D3723026DE4D /* LecturerView.swift in Sources */,
 				AF85C23F939596E9BE924FD1 /* Lesson.swift in Sources */,

@@ -49,7 +49,7 @@ enum SupportLink {
         models[identifier] ?? slug(identifier)
     }
 
-    private static var machineIdentifier: String {
+    static var machineIdentifier: String {
         var info = utsname()
         uname(&info)
         return withUnsafeBytes(of: &info.machine) { String(decoding: $0.prefix { $0 != 0 }, as: UTF8.self) }
@@ -73,6 +73,7 @@ enum SupportLink {
         "iPhone17,1": "iphone-16-pro", "iPhone17,2": "iphone-16-pro-max", "iPhone17,5": "iphone-16e",
         "iPhone18,3": "iphone-17", "iPhone18,4": "iphone-air",
         "iPhone18,1": "iphone-17-pro", "iPhone18,2": "iphone-17-pro-max", "iPhone18,5": "iphone-17e",
+        "iPhone19,4": "iphone-duo",
 
         "iPad11,6": "ipad-8", "iPad11,7": "ipad-8",
         "iPad12,1": "ipad-9", "iPad12,2": "ipad-9",
