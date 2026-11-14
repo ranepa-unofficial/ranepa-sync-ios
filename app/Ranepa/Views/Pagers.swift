@@ -37,6 +37,7 @@ struct MonthPager: View {
         .scrollPosition(id: $page)
         .scrollIndicators(.hidden)
         .scrollClipDisabled(false)
+        .clipHorizontally()
         .frame(maxWidth: .infinity)
         .fixedSize(horizontal: false, vertical: true)
         .onAppear { page = index(of: selected) }
@@ -88,6 +89,7 @@ struct WeekPager: View {
         .scrollTargetBehavior(.paging)
         .scrollPosition(id: $page)
         .scrollIndicators(.hidden)
+        .clipHorizontally()
         .fixedSize(horizontal: false, vertical: true)
         .onAppear { page = week(of: selected) }
         .onChange(of: selected) { _, day in
@@ -351,5 +353,21 @@ private struct ColumnNowLine: View {
             if let detail { Text(detail).font(.caption).foregroundStyle(.secondary) }
         }
         .accessibilityElement(children: .combine)
+    }
+}
+
+extension View {
+    /// Обрезать по бокам, но не сверху и снизу. Горизонтальная прокрутка
+    /// рисует соседние страницы под боковой safe area — на iPhone Duo там
+    /// вертикальные панели и статус-бар. Сверху и снизу контент должен
+    /// по-прежнему уходить под стеклянные шапку и таб-бар.
+    func clipHorizontally() -> some View {
+        clipShape(HorizontalClip())
+    }
+}
+
+private struct HorizontalClip: Shape {
+    func path(in rect: CGRect) -> Path {
+        Path(CGRect(x: rect.minX, y: rect.minY - 10_000, width: rect.width, height: rect.height + 20_000))
     }
 }

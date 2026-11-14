@@ -139,6 +139,40 @@ struct LiveActivityPlan: Equatable {
     }
 }
 
+/// Текст для часов и устройств без острова: «Философия, 12:20: 2 - 2016 → 5 - 301».
+func changeBody(_ change: LessonActivityAttributes.Change) -> String {
+    let head = "\(change.lesson.title), \(hm(change.lesson.start))"
+    guard let old = change.old, let new = change.new else { return head }
+    return "\(head): \(old) → \(new)"
+}
+
+extension LiveActivityPlan {
+    /// Что поменялось у пар, которые сейчас в активности ([old]): другая
+    /// аудитория, время или отмена. [lessons] — по настоящим часам, без
+    /// отменённых. Закончившиеся пары не в счёт.
+    static func change(from old: A.ContentState, to lessons: [A.Lesson], now: Date) -> A.Change? {
+        let shown = [old.lesson] + (old.next.map { [$0] } ?? [])
+        for was in shown where was.end > now {
+            if lessons.contains(was) { continue }
+            if let moved = lessons.first(where: { $0.title == was.title && $0.start == was.start }) {
+                if moved.room != was.room {
+                    return A.Change(kind: .room, lesson: was, old: was.room, new: moved.room)
+                }
+                continue
+            }
+            // Та же пара в другое время этого дня — если её не было в активности.
+            let candidates = lessons.filter { l in
+                l.title == was.title && l.start.sameDay(was.start) && !shown.contains { $0.start == l.start }
+            }
+            if let moved = candidates.min(by: { abs($0.start.timeIntervalSince(was.start)) < abs($1.start.timeIntervalSince(was.start)) }) {
+                return A.Change(kind: .time, lesson: was, old: hm(was.start), new: hm(moved.start))
+            }
+            return A.Change(kind: .cancelled, lesson: was, old: nil, new: nil)
+        }
+        return nil
+    }
+}
+
 /// Пара на экране блокировки и в Dynamic Island. Запустить активность iOS
 /// разрешает только из открытого приложения (или по расписанию, о котором
 /// попросили оттуда же), обновлять и завершать — и из фона.
@@ -172,16 +206,25 @@ enum LiveActivities {
         let running = all.filter { [.active, .stale].contains($0.activityState) }
         let pending = all.filter { $0.activityState == .pending }
         let plan = LiveActivityPlan(real, now: Date(), running: !running.isEmpty, reminderMinutes: reminderMinutes)
-        let canStart = await MainActor.run { UIApplication.shared.applicationState == .active }
-            && ActivityAuthorizationInfo().areActivitiesEnabled
+        let active = await MainActor.run { UIApplication.shared.applicationState == .active }
+        let canStart = active && ActivityAuthorizationInfo().areActivitiesEnabled
 
         // Сегодня.
-        if let state = plan.today {
-            let content = ActivityContent(state: state, staleDate: state.isCurrent ? state.lesson.end : state.lesson.start)
+        if var state = plan.today {
             if let current = running.first {
-                await current.update(content)
+                // Пара в активности изменилась — остров раскрывается сам, со звуком.
+                state.change = LiveActivityPlan.change(from: current.content.state, to: real, now: Date())
+                let content = ActivityContent(state: state, staleDate: state.isCurrent ? state.lesson.end : state.lesson.start)
+                // В открытом приложении об изменении скажет его баннер.
+                if let change = state.change, !active {
+                    let alert = AlertConfiguration(title: "\(change.headline)", body: "\(changeBody(change))", sound: .default)
+                    await current.update(content, alertConfiguration: alert)
+                } else {
+                    await current.update(content)
+                }
                 for extra in running.dropFirst() { await extra.end(nil, dismissalPolicy: .immediate) }
             } else if plan.startNow && canStart {
+                let content = ActivityContent(state: state, staleDate: state.isCurrent ? state.lesson.end : state.lesson.start)
                 _ = try? Activity<A>.request(attributes: A(), content: content)
             }
         } else {

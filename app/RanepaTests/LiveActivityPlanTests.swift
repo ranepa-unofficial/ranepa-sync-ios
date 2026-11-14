@@ -73,4 +73,47 @@ final class LiveActivityPlanTests: XCTestCase {
         let p = plan(date(2026, 10, 13, 8, 50), running: true)
         XCTAssertEqual(p.scheduled?.state.lesson, week[2])
     }
+
+    // MARK: Изменения пар в активности
+
+    private func lesson(_ title: String, _ hour: Int, _ minute: Int = 0, room: String = "2 - 2016") -> A.Lesson {
+        let start = date(2026, 10, 13, hour, minute)
+        return A.Lesson(title: title, kind: "семинар", room: room, fullRoom: "", start: start, end: start.addingTimeInterval(80 * 60))
+    }
+
+    private lazy var shown = A.ContentState(lesson: lesson("Математика", 9), next: lesson("Философия", 12, 20), isCurrent: true)
+    private let morning = date(2026, 10, 13, 9, 30)
+
+    func testNoChange() {
+        XCTAssertNil(LiveActivityPlan.change(from: shown, to: [lesson("Математика", 9), lesson("Философия", 12, 20)], now: morning))
+    }
+
+    func testRoomChanged() {
+        let c = LiveActivityPlan.change(from: shown, to: [lesson("Математика", 9), lesson("Философия", 12, 20, room: "5 - 301")],
+                                        now: morning)
+        XCTAssertEqual(c?.kind, .room)
+        XCTAssertEqual(c?.old, "2 - 2016")
+        XCTAssertEqual(c?.new, "5 - 301")
+        XCTAssertEqual(c?.lesson.title, "Философия")
+        XCTAssertEqual(c.map(changeBody), "Философия, 12:20: 2 - 2016 → 5 - 301")
+    }
+
+    func testMoved() {
+        let c = LiveActivityPlan.change(from: shown, to: [lesson("Математика", 9), lesson("Философия", 14)], now: morning)
+        XCTAssertEqual(c?.kind, .time)
+        XCTAssertEqual(c?.old, "12:20")
+        XCTAssertEqual(c?.new, "14:00")
+    }
+
+    func testCancelled() {
+        let c = LiveActivityPlan.change(from: shown, to: [lesson("Математика", 9)], now: morning)
+        XCTAssertEqual(c?.kind, .cancelled)
+        XCTAssertNil(c?.new)
+        XCTAssertEqual(c.map(changeBody), "Философия, 12:20")
+    }
+
+    /// Закончившаяся пара пропала из расписания — это не изменение.
+    func testFinishedLessonIgnored() {
+        XCTAssertNil(LiveActivityPlan.change(from: shown, to: [lesson("Философия", 12, 20)], now: date(2026, 10, 13, 11)))
+    }
 }

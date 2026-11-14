@@ -8,6 +8,7 @@ struct HomeView: View {
     @Environment(AppState.self) private var state
     @Environment(\.horizontalSizeClass) private var sizeClass
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var selected = Clock.now.dateOnly
     @State private var dayPage: Int?
@@ -59,7 +60,9 @@ struct HomeView: View {
             .safeAreaBar(edge: .top) { header }
             .toolbar(.hidden, for: .navigationBar)
             .overlay(alignment: .top) {
-                if let banner {
+                if Island.available && !reduceMotion {
+                    IslandBanner(banner: banner) { self.banner = nil }
+                } else if let banner {
                     BannerView(banner: banner)
                         .transition(.move(edge: .top).combined(with: .opacity))
                         .onTapGesture { withAnimation { self.banner = nil } }
@@ -225,6 +228,7 @@ struct HomeView: View {
             .scrollTargetLayout()
         }
         .scrollTargetBehavior(.paging)
+        .clipHorizontally()
         .scrollPosition(id: $dayPage)
         .scrollIndicators(.hidden)
     }

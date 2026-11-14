@@ -37,6 +37,30 @@ struct LessonActivityAttributes: ActivityAttributes {
         /// к началу ближайшей — по isCurrent расширение понимает, что
         /// показать после этого, если приложение не успело обновить её.
         let isCurrent: Bool
+        /// Что только что изменилось у идущей или ближайшей пары. Есть
+        /// только в обновлении, которое раскрывает остров; следующее
+        /// обновление его убирает.
+        var change: Change? = nil
+    }
+
+    /// «Аудитория изменилась: 2 - 2016 → 5 - 301».
+    struct Change: Codable, Hashable {
+        enum Kind: String, Codable { case room, time, cancelled }
+
+        let kind: Kind
+        /// Пара, как она была: название, тип и время для подзаголовка.
+        let lesson: Lesson
+        /// Было и стало: аудитории или время начала. У отмены — nil.
+        let old: String?
+        let new: String?
+
+        var headline: String {
+            switch kind {
+            case .room: "Аудитория изменилась"
+            case .time: "Пара перенесена"
+            case .cancelled: "Пара отменена"
+            }
+        }
     }
 }
 

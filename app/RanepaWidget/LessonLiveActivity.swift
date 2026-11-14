@@ -20,7 +20,11 @@ struct LessonLiveActivity: Widget {
                 // в них не помещается. Раскладка та же, что на экране
                 // блокировки: слева что, справа сколько, внизу — потом.
                 DynamicIslandExpandedRegion(.bottom) {
-                    LockScreenView(phase: phase).padding(.horizontal, 6)
+                    if let change = context.state.change {
+                        ChangeView(change: change).padding(.horizontal, 6)
+                    } else {
+                        LockScreenView(phase: phase).padding(.horizontal, 6)
+                    }
                 }
             } compactLeading: {
                 if let lesson = phase.lesson {
@@ -193,6 +197,58 @@ private struct FooterRows: View {
 }
 
 private func capitalized(_ s: String) -> String { s.prefix(1).uppercased() + s.dropFirst() }
+
+/// Остров раскрылся сам: «Аудитория изменилась, 2 - 2016 → 5 - 301».
+@available(iOS 16.2, *)
+private struct ChangeView: View {
+    let change: LessonActivityAttributes.Change
+
+    private var symbol: String {
+        switch change.kind {
+        case .room: "arrow.triangle.2.circlepath"
+        case .time: "clock.arrow.circlepath"
+        case .cancelled: "xmark"
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                Image(systemName: symbol)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(.orange)
+                    .frame(width: 40, height: 40)
+                    .background(Color.orange.opacity(0.25), in: Circle())
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(change.headline).font(.system(size: 17, weight: .semibold))
+                    Text([capitalized(change.lesson.kind), change.lesson.title, hm(change.lesson.start)]
+                            .filter { !$0.isEmpty }.joined(separator: " · "))
+                        .font(.system(size: 14))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            if let old = change.old, let new = change.new {
+                HStack(spacing: 10) {
+                    Text(old).strikethrough().foregroundStyle(.secondary)
+                    Image(systemName: "arrow.right").font(.system(size: 14, weight: .semibold))
+                        .accessibilityLabel("на")
+                    Text(new).fontWeight(.semibold)
+                }
+                .font(.system(size: 17))
+                .monospacedDigit()
+                .lineLimit(1)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(.white.opacity(0.1), in: .rect(cornerRadius: 18))
+            }
+        }
+        .foregroundStyle(.white)
+    }
+}
 
 @available(iOS 16.2, *)
 private struct LockScreenView: View {
