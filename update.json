@@ -1,7 +1,8 @@
 {
   "appstore": {
-    "latest": "2.2.0",
-    "minimum": "2.0.0"
+    "latest": "2.2.2",
+    "minimum": "2.0.0",
+    "notes": "Баллы БРС и посещаемость на вкладке «Предметы». Изменения пары — в Dynamic Island."
   },
   "testflight": {
     "latest": "2.2.2",
