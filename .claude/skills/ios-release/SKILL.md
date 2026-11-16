@@ -7,16 +7,31 @@ description: Выпуск iOS-приложения — номер сборки, 
 
 Сначала прочитай [`docs/release.md`](../../../docs/release.md): номер сборки, команды архива, поля и сроки `update.json`. Здесь — то, чего там нет.
 
+## Кто что делает
+
+| Шаг | Где | Как |
+|---|---|---|
+| PR «Сборка X.Y.Z (N)» | локально | правка `app/project.yml`, PR, мерж после «ок» |
+| Архив и загрузка | **CI** `testflight.yml`, job `upload` | `gh workflow run testflight.yml --ref main -f what_to_test="…"` или тег `vX.Y.Z-N` |
+| Обработка, What to Test, группа «Students», бета-ревью | **CI**, job `testers` | `asc.py testflight` |
+| PR `update.json` → `testflight` | **CI**, job `testers` | влить, когда `state=IN_BETA_TESTING` |
+| Версия в App Store, тексты, скриншоты, заметки, отправка на проверку | **локально** | `asc.py version / texts / shots / review / submit`; `submit` — только после явного «отправляй» |
+| «Конфиденциальность приложения», кнопка «Выпустить» | сайт, пользователь | — |
+| PR `update.json` → `appstore` | **CI** `appstore-update-json.yml`, раз в 6 часов | влить, когда версия открывается по ссылке |
+
+Ключи: в CI — отдельный ключ с ролью Admin из секретов `ASC_*` (нужен для облачной подписи); локально — `~/.appstoreconnect/config.json`.
+
 ## Версия и сборка
 
 - Версию выбирает пользователь. Сам предлагай только следующий патч (2.2.1 → 2.2.2).
 - Версия, вышедшая в App Store, закрыта: новой сборке нужна новая версия, даже для TestFlight.
-- Сборка — только из `main` после мержа PR «Сборка X.Y.Z (N)», через CI: `gh workflow run testflight.yml --ref main -f what_to_test="…"` (текст — из `changes --testflight`, согласуй с пользователем), затем `gh run watch <id> --exit-status` в фоне. Локальный архив — только если CI недоступен.
+- Сборка — только из `main` после мержа PR «Сборка X.Y.Z (N)», через CI. **What to Test** — из `changes --testflight`: что изменилось и что проверить по шагам, отдельно — что не проверено в симуляторе; согласуй с пользователем. Затем `gh run watch <id> --exit-status` в фоне.
+- **Без CI** (раннер недоступен): архив и загрузка по `docs/release.md`, затем `python3 -I scripts/asc.py testflight $B <N> --notes notes.txt`, затем `scripts/update_json.py testflight X.Y.Z N` и PR.
 - Падение подписи в CI («Cloud signing permission error», нет сертификата) — у ключа не хватает прав. Это делает пользователь на сайте, ключ в чат не просить.
 
 ## App Store Connect API
 
-[`scripts/asc.py`](../../../scripts/asc.py) — без зависимостей (stdlib + `openssl`). Ключ в `~/.appstoreconnect` (см. шапку скрипта); если его нет — пользователь создаёт ключ с ролью App Manager и даёт Issuer ID и Key ID. Если мешает прокси песочницы — `env -u HTTPS_PROXY -u HTTP_PROXY`.
+[`scripts/asc.py`](../../../scripts/asc.py) — без зависимостей (stdlib + `openssl`). Ключ в `~/.appstoreconnect` (см. шапку скрипта); если его нет — пользователь создаёт ключ (для локальной работы хватает App Manager) и даёт Issuer ID и Key ID. Если мешает прокси песочницы — `env -u HTTPS_PROXY -u HTTP_PROXY`.
 
 ```bash
 A=scripts/asc.py; B=com.qteb.ranepaTimetable
