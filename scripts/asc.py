@@ -8,6 +8,8 @@
     python3 -I asc.py shots   BUNDLE VERSION LOCALE DISPLAY_TYPE DIR
     python3 -I asc.py review  BUNDLE VERSION show | set FILE
     python3 -I asc.py submit  BUNDLE VERSION
+    python3 -I asc.py changes BUNDLE [--testflight]   PR с последней версии в App Store
+                                                    (или с последней сборки) — черновик «Что нового»
     python3 -I asc.py call    METHOD PATH [JSON_BODY]
 
 Ключ: ~/.appstoreconnect/config.json ({"key_id", "issuer_id"}) и
@@ -252,6 +254,37 @@ def submit(bundle, ver):
     print("submission", r["attributes"]["state"])
 
 
+SKIP = ("Сборка ", "update.json", "README")
+
+
+def changes(bundle, testflight=False):
+    """Коммиты main после сборки, которая сейчас в App Store (или последней загруженной)."""
+    aid = app_id(bundle)
+    if testflight:
+        build = get("/v1/builds", **{"filter[app]": aid, "sort": "-uploadedDate", "limit": 1})["data"][0]
+        label = f"последней загруженной сборки {build['attributes']['version']}"
+    else:
+        live = get(f"/v1/apps/{aid}/appStoreVersions", **{"filter[appStoreState]": "READY_FOR_SALE"})["data"]
+        if not live:
+            sys.exit("в App Store нет выпущенной версии")
+        build = get(f"/v1/appStoreVersions/{live[0]['id']}/build")["data"]
+        label = f"версии {live[0]['attributes']['versionString']} в App Store (сборка {build['attributes']['version']})"
+    number = build["attributes"]["version"]
+    git = ["git", "-C", str(pathlib.Path(__file__).resolve().parents[1])]
+    subprocess.run(git + ["fetch", "-q", "origin", "main"], check=True)
+    since = subprocess.run(git + ["log", "origin/main", "--format=%H", "--reverse",
+                                  f"-SCURRENT_PROJECT_VERSION: {number}", "--", "app/project.yml"],
+                           capture_output=True, text=True, check=True).stdout.split()
+    if not since:
+        sys.exit(f"не нашёл коммит, где номер сборки стал {number}")
+    log = subprocess.run(git + ["log", "--format=%s", f"{since[0]}..origin/main"],
+                         capture_output=True, text=True, check=True).stdout.splitlines()
+    print(f"Изменения после {label}:")
+    for subject in log:
+        if not subject.startswith(SKIP):
+            print("•", subject)
+
+
 def main(argv):
     if not argv:
         sys.exit(__doc__)
@@ -270,6 +303,8 @@ def main(argv):
         commands[cmd](*pos)
     elif cmd == "version":
         version(*pos, auto="--auto" in args)
+    elif cmd == "changes":
+        changes(*pos, testflight="--testflight" in args)
     elif cmd == "texts":
         texts(*pos, flags)
     elif cmd == "call":

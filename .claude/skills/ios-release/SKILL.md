@@ -13,15 +13,16 @@ description: Выпуск iOS-приложения — номер сборки, 
 - Версия, вышедшая в App Store, закрыта: новой сборке нужна новая версия, даже для TestFlight.
 - Архив — только из `main` после мержа PR «Сборка X.Y.Z (N)». Перед загрузкой сверь версию в архиве:
   `PlistBuddy -c 'Print :ApplicationProperties:CFBundleShortVersionString' build/ios/Ranepa.xcarchive/Info.plist`.
-- После загрузки дай пользователю текст **What to Test**: что изменилось и что проверить по шагам, отдельно — что не проверено в симуляторе.
+- После загрузки дай пользователю текст **What to Test** (основа — `changes --testflight`): что изменилось и что проверить по шагам, отдельно — что не проверено в симуляторе.
 
 ## App Store Connect API
 
-[`scripts/asc.py`](scripts/asc.py) — без зависимостей (stdlib + `openssl`). Ключ в `~/.appstoreconnect` (см. шапку скрипта); если его нет — пользователь создаёт ключ с ролью App Manager и даёт Issuer ID и Key ID. Если мешает прокси песочницы — `env -u HTTPS_PROXY -u HTTP_PROXY`.
+[`scripts/asc.py`](../../../scripts/asc.py) — без зависимостей (stdlib + `openssl`). Ключ в `~/.appstoreconnect` (см. шапку скрипта); если его нет — пользователь создаёт ключ с ролью App Manager и даёт Issuer ID и Key ID. Если мешает прокси песочницы — `env -u HTTPS_PROXY -u HTTP_PROXY`.
 
 ```bash
-A=".claude/skills/ios-release/scripts/asc.py"; B=com.qteb.ranepaTimetable
+A=scripts/asc.py; B=com.qteb.ranepaTimetable
 python3 -I $A status  $B                       # версии, сборки (нужен VALID), отправки
+python3 -I $A changes $B [--testflight]        # PR с версии в App Store (или с последней сборки)
 python3 -I $A version $B 2.3.0 40 [--auto]     # создать версию или перепривязать сборку
 python3 -I $A texts   $B 2.3.0 ru --notes notes.txt [--description F --promo F --keywords S --support URL --marketing URL]
 python3 -I $A shots   $B 2.3.0 ru APP_IPHONE_67 screenshots/appstore/iphone-6.9
@@ -33,7 +34,7 @@ python3 -I $A call GET "/v1/apps/6822034998/appStoreVersions"
 1. **`status` перед любыми изменениями.** Если версия уже `WAITING_FOR_REVIEW`, пользователь отправил её сам — остановись.
 2. **Тип выпуска** — как у прошлой версии (виден в `status`).
 3. **Тексты наследуются** от прошлой версии: описание, ключевые слова, промо, скриншоты, заметки для проверки. Перечитай их — старые утверждения («аналитики нет», старые ссылки) переезжают молча. Готовые тексты ищи в `screenshots/appstore/RELEASE-*.md` (локально, папка в `.gitignore`), покажи пользователю, что поставишь.
-4. **«Что нового»** — всё, что изменилось с прошлой версии **в App Store**, включая промежуточные сборки TestFlight. Пункты «• …», без технических деталей. Лимиты: описание и «Что нового» 4000 символов, промо 170, ключевые слова 100.
+4. **«Что нового»** — всё, что изменилось с прошлой версии **в App Store**, включая промежуточные сборки TestFlight: список даёт `changes`, переписывай его для людей. Пункты «• …», без технических деталей. Лимиты: описание и «Что нового» 4000 символов, промо 170, ключевые слова 100.
 5. **Заметки для проверки** — добавь раздел `NEW IN X.Y.Z`; проверь по коду, что жест демо-режима не изменился, и честно напиши, что в демо видно, а что нет.
 6. **Скриншоты** — `shots` заменяет весь набор файлами `DIR/*.png` по имени. Трогай только наборы, о которых просили.
 
