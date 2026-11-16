@@ -11,8 +11,8 @@ description: Выпуск iOS-приложения — номер сборки, 
 
 - Версию выбирает пользователь. Сам предлагай только следующий патч (2.2.1 → 2.2.2).
 - Версия, вышедшая в App Store, закрыта: новой сборке нужна новая версия, даже для TestFlight.
-- Архив — только из `main` после мержа PR «Сборка X.Y.Z (N)». Перед загрузкой сверь версию в архиве:
-  `PlistBuddy -c 'Print :ApplicationProperties:CFBundleShortVersionString' build/ios/Ranepa.xcarchive/Info.plist`.
+- Сборка — только из `main` после мержа PR «Сборка X.Y.Z (N)», через CI: `gh workflow run testflight.yml --ref main`, затем `gh run watch <id> --exit-status` в фоне. Локальный архив — только если CI недоступен.
+- Падение подписи в CI («Cloud signing permission error», нет сертификата) — у ключа не хватает прав. Это делает пользователь на сайте, ключ в чат не просить.
 - После загрузки дай пользователю текст **What to Test** (основа — `changes --testflight`): что изменилось и что проверить по шагам, отдельно — что не проверено в симуляторе.
 
 ## App Store Connect API

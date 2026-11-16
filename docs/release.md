@@ -22,6 +22,27 @@ xcodegen generate
 
 ## 2. Архив и загрузка
 
+Обычно — через GitHub Actions ([testflight.yml](../.github/workflows/testflight.yml)),
+после того как PR сборки влит в `main`:
+
+```bash
+gh workflow run testflight.yml --ref main
+```
+
+или тегом `vX.Y.Z-N` (версия и номер сборки из `app/project.yml`):
+
+```bash
+git fetch && git tag v2.3.0-40 origin/main && git push origin v2.3.0-40
+```
+
+Workflow проверяет, что номер сборки ещё не загружался, собирает архив на
+раннере `xcode-27` и загружает его. Подпись автоматическая, по ключу App Store
+Connect из секретов репозитория `ASC_KEY_ID`, `ASC_ISSUER_ID` и `ASC_PRIVATE_KEY`
+(содержимое `.p8`). Ключу нужна роль Admin или App Manager с доступом к
+облачным сертификатам распространения.
+
+Локально, если CI недоступен:
+
 ```bash
 cd app
 xcodebuild -project Ranepa.xcodeproj -scheme Ranepa -configuration Release \
