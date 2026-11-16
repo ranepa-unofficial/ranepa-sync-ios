@@ -22,6 +22,27 @@ xcodegen generate
 
 ## 2. Архив и загрузка
 
+Обычно — через GitHub Actions ([testflight.yml](../.github/workflows/testflight.yml)),
+после того как PR сборки влит в `main`:
+
+```bash
+gh workflow run testflight.yml --ref main
+```
+
+или тегом `vX.Y.Z-N` (версия и номер сборки из `app/project.yml`):
+
+```bash
+git fetch && git tag v2.3.0-40 origin/main && git push origin v2.3.0-40
+```
+
+Workflow проверяет, что номер сборки ещё не загружался, собирает архив на
+раннере `xcode-27` и загружает его. Подпись автоматическая, по ключу App Store
+Connect из секретов репозитория `ASC_KEY_ID`, `ASC_ISSUER_ID` и `ASC_PRIVATE_KEY`
+(содержимое `.p8`). Ключу нужна роль Admin или App Manager с доступом к
+облачным сертификатам распространения.
+
+Локально, если CI недоступен:
+
 ```bash
 cd app
 xcodebuild -project Ranepa.xcodeproj -scheme Ranepa -configuration Release \
@@ -36,10 +57,16 @@ xcodebuild -exportArchive -archivePath ../build/ios/Ranepa.xcarchive -exportPath
 
 ## 3. TestFlight
 
-1. Дождаться обработки: 10–30 минут, придёт письмо.
-2. Сборка → Test Details → **What to Test**: что изменилось и что проверить.
-3. Добавить сборку во внешнюю группу с публичной ссылкой. Если Apple попросит
-   бета-ревью, дождаться его.
+После загрузки job `testers` того же workflow делает всё сам:
+
+1. ждёт обработки (10–30 минут);
+2. ставит **What to Test** — из поля `what_to_test` при запуске
+   (`gh workflow run testflight.yml --ref main -f what_to_test="…"`) или из
+   сообщения аннотированного тега;
+3. добавляет сборку во внешние группы (публичная ссылка) и отправляет на бета-ревью;
+4. открывает PR с `testflight` в `update.json` и пишет в нём, доступна ли уже сборка.
+
+Вручную то же самое: `python3 -I scripts/asc.py testflight com.qteb.ranepaTimetable <сборка> --notes notes.txt`.
 
 ## 4. App Store
 
@@ -86,8 +113,11 @@ TestFlight или App Store свою же версию.
 
 ### Как выложить
 
-Правка `update.json` — PR в `main`, отдельно или вместе с PR номера сборки, но
-**влить его только когда сборка уже доступна** (см. «Когда менять»).
+PR открываются сами: `testflight` — после загрузки сборки (workflow TestFlight),
+`appstore` — проверкой раз в 6 часов, когда в App Store вышла версия новее
+([appstore-update-json.yml](../.github/workflows/appstore-update-json.yml)).
+Вручную — `scripts/update_json.py`. **Влить PR только когда сборка или версия
+уже доступна** (см. «Когда менять»); `minimum` всегда поднимают вручную.
 
 После влития GitHub отдаёт новый файл через несколько минут. jsDelivr может
 кэшировать до 12 часов. Он нужен только как запасной путь, но кэш можно сбросить:

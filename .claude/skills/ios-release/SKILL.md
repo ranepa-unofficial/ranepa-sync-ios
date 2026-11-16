@@ -11,9 +11,8 @@ description: Выпуск iOS-приложения — номер сборки, 
 
 - Версию выбирает пользователь. Сам предлагай только следующий патч (2.2.1 → 2.2.2).
 - Версия, вышедшая в App Store, закрыта: новой сборке нужна новая версия, даже для TestFlight.
-- Архив — только из `main` после мержа PR «Сборка X.Y.Z (N)». Перед загрузкой сверь версию в архиве:
-  `PlistBuddy -c 'Print :ApplicationProperties:CFBundleShortVersionString' build/ios/Ranepa.xcarchive/Info.plist`.
-- После загрузки дай пользователю текст **What to Test** (основа — `changes --testflight`): что изменилось и что проверить по шагам, отдельно — что не проверено в симуляторе.
+- Сборка — только из `main` после мержа PR «Сборка X.Y.Z (N)», через CI: `gh workflow run testflight.yml --ref main -f what_to_test="…"` (текст — из `changes --testflight`, согласуй с пользователем), затем `gh run watch <id> --exit-status` в фоне. Локальный архив — только если CI недоступен.
+- Падение подписи в CI («Cloud signing permission error», нет сертификата) — у ключа не хватает прав. Это делает пользователь на сайте, ключ в чат не просить.
 
 ## App Store Connect API
 
@@ -54,9 +53,11 @@ python3 -I $A call GET "/v1/apps/6822034998/appStoreVersions"
 
 ## update.json
 
-Отдельный PR на каждый канал, в описании — когда мержить и команда сброса jsDelivr:
+PR открывает CI: `testflight` — job `testers` после загрузки, `appstore` — проверка раз в 6 часов после выхода версии. Твоя работа — проверить `notes` (1–3 строки для людей) и сказать пользователю, когда вливать:
 
-- `testflight` — когда сборка доступна тестировщикам (обработана и во внешней группе);
+- `testflight` — когда сборка доступна внешним тестировщикам (`state=IN_BETA_TESTING` в логе или в описании PR);
 - `appstore` — когда версия выпущена и открывается по ссылке.
+
+Если CI не сработал — `scripts/update_json.py` и PR вручную.
 
 Перед PR: `-only-testing:RanepaTests/UpdatesTests` — тест разбирает сам файл.
