@@ -1,0 +1,53 @@
+name: update.json для App Store
+
+# Раз в 6 часов: если в App Store вышла версия новее, чем appstore.latest в
+# update.json, открыть PR. notes — первая строка «Что нового» (поправь в PR).
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ключ App Store Connect
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: |
+          dir="$HOME/.appstoreconnect/private_keys"
+          mkdir -p "$dir"
+          printf '%s\n' "$ASC_PRIVATE_KEY" > "$dir/AuthKey_$ASC_KEY_ID.p8"
+          chmod 600 "$dir/AuthKey_$ASC_KEY_ID.p8"
+          printf '{"key_id": "%s", "issuer_id": "%s"}\n' "$ASC_KEY_ID" "$ASC_ISSUER_ID" > "$HOME/.appstoreconnect/config.json"
+      - name: PR с update.json
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          live=$(python3 -I scripts/asc.py live com.qteb.ranepaTimetable)
+          version=$(printf '%s' "$live" | python3 -c "import json, sys; print(json.load(sys.stdin)['version'])")
+          notes=$(printf '%s' "$live" | python3 -c "
+          import json, sys
+          lines = [l.strip().lstrip('•*- ').strip() for l in json.load(sys.stdin)['whatsNew'].splitlines()]
+          print(next((l for l in lines if l and not l.endswith(':')), ''))")
+          branch="update-json-appstore-${version}"
+          if git ls-remote --exit-code origin "refs/heads/${branch}" >/dev/null; then exit 0; fi
+          python3 -I scripts/update_json.py appstore "$version" "$notes" || { echo "update.json актуален"; exit 0; }
+          git switch -c "$branch"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -qam "update.json: App Store ${version}"
+          git push -q origin "$branch"
+          gh pr create --base main --head "$branch" --title "update.json: App Store ${version}" \
+            --body "Версия ${version} вышла в App Store. Проверь notes (взята первая строка «Что нового») и влей; затем сброс кэша jsDelivr (docs/release.md)."
+      - name: Убрать ключ
+        if: always()
+        run: rm -rf "$HOME/.appstoreconnect"

@@ -1,0 +1,166 @@
+name: TestFlight
+
+# Сборка из main → архив → загрузка в App Store Connect (TestFlight).
+# Запуск: gh workflow run testflight.yml (из main) или тег vX.Y.Z-N, где X.Y.Z и N
+# совпадают с MARKETING_VERSION и CURRENT_PROJECT_VERSION в app/project.yml.
+# Подпись — автоматическая, по ключу App Store Connect из секретов
+# ASC_KEY_ID, ASC_ISSUER_ID, ASC_PRIVATE_KEY (содержимое .p8).
+# Затем job testers: ждёт обработки, ставит What to Test (поле запуска или сообщение
+# аннотированного тега), добавляет сборку во внешние группы, отправляет на бета-ревью
+# и открывает PR с testflight в update.json. См. docs/release.md.
+on:
+  workflow_dispatch:
+    inputs:
+      what_to_test:
+        description: "What to Test (пусто — без текста)"
+        required: false
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+concurrency: testflight
+
+jobs:
+  upload:
+    runs-on: xcode-27
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      build: ${{ steps.version.outputs.build }}
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash -eo pipefail {0}
+    env:
+      APP_ID: "6822034998"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Xcode
+        run: sudo xcode-select -s /Applications/Xcode_27.2.app && xcodebuild -version
+      - name: Версия и сборка
+        id: version
+        run: |
+          version=$(awk '/MARKETING_VERSION:/ {print $2; exit}' app/project.yml)
+          build=$(awk '/CURRENT_PROJECT_VERSION:/ {print $2; exit}' app/project.yml)
+          { echo "VERSION=$version"; echo "BUILD=$build"; } >> "$GITHUB_ENV"
+          { echo "version=$version"; echo "build=$build"; } >> "$GITHUB_OUTPUT"
+          if [ "$GITHUB_REF_TYPE" = tag ] && [ "$GITHUB_REF_NAME" != "v$version-$build" ]; then
+            echo "::error::Тег $GITHUB_REF_NAME не совпадает с app/project.yml (v$version-$build)"; exit 1
+          fi
+          if [ "$GITHUB_REF_TYPE" = branch ] && [ "$GITHUB_REF_NAME" != main ]; then
+            echo "::error::Собирать можно только main"; exit 1
+          fi
+          echo "### $version ($build)" >> "$GITHUB_STEP_SUMMARY"
+      - name: Ключ App Store Connect
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: |
+          dir="$HOME/.appstoreconnect/private_keys"
+          mkdir -p "$dir"
+          printf '%s\n' "$ASC_PRIVATE_KEY" > "$dir/AuthKey_$ASC_KEY_ID.p8"
+          chmod 600 "$dir/AuthKey_$ASC_KEY_ID.p8"
+          printf '{"key_id": "%s", "issuer_id": "%s"}\n' "$ASC_KEY_ID" "$ASC_ISSUER_ID" > "$HOME/.appstoreconnect/config.json"
+          {
+            echo "AUTH_KEY=$dir/AuthKey_$ASC_KEY_ID.p8"
+            echo "ASC_KEY_ID=$ASC_KEY_ID"
+            echo "ASC_ISSUER_ID=$ASC_ISSUER_ID"
+          } >> "$GITHUB_ENV"
+      - name: Номер сборки ещё не загружался
+        run: |
+          python3 -I scripts/asc.py call GET "/v1/builds?filter[app]=$APP_ID&filter[version]=$BUILD" \
+            | python3 -c "import json, sys; sys.exit(1 if json.load(sys.stdin)['data'] else 0)" \
+            || { echo "::error::Сборка $BUILD уже есть в App Store Connect — подними CURRENT_PROJECT_VERSION"; exit 1; }
+      - name: Проект
+        run: brew install xcodegen && cd app && xcodegen generate
+      - name: Архив
+        working-directory: app
+        run: |
+          xcodebuild -project Ranepa.xcodeproj -scheme Ranepa -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath ../build/ios/Ranepa.xcarchive \
+            -allowProvisioningUpdates -authenticationKeyPath "$AUTH_KEY" \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            archive | tail -n 40
+      - name: Загрузка в TestFlight
+        working-directory: app
+        run: |
+          xcodebuild -exportArchive -archivePath ../build/ios/Ranepa.xcarchive -exportPath ../build/ios/upload \
+            -exportOptionsPlist ExportOptions.plist \
+            -allowProvisioningUpdates -authenticationKeyPath "$AUTH_KEY" \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+          echo "Загружено. Обработка в App Store Connect — 10–30 минут." >> "$GITHUB_STEP_SUMMARY"
+      - name: Убрать ключ
+        if: always()
+        run: rm -rf "$HOME/.appstoreconnect"
+
+  testers:
+    needs: upload
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    defaults:
+      run:
+        shell: bash -eo pipefail {0}
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      VERSION: ${{ needs.upload.outputs.version }}
+      BUILD: ${{ needs.upload.outputs.build }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ключ App Store Connect
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: |
+          dir="$HOME/.appstoreconnect/private_keys"
+          mkdir -p "$dir"
+          printf '%s\n' "$ASC_PRIVATE_KEY" > "$dir/AuthKey_$ASC_KEY_ID.p8"
+          chmod 600 "$dir/AuthKey_$ASC_KEY_ID.p8"
+          printf '{"key_id": "%s", "issuer_id": "%s"}\n' "$ASC_KEY_ID" "$ASC_ISSUER_ID" > "$HOME/.appstoreconnect/config.json"
+      - name: What to Test
+        env:
+          INPUT: ${{ inputs.what_to_test }}
+        run: |
+          notes="$INPUT"
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            git fetch --depth=1 origin "+refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
+            notes=$(git for-each-ref "refs/tags/${GITHUB_REF_NAME}" --format='%(if)%(*objectname)%(then)%(contents)%(end)')
+          fi
+          printf '%s' "$notes" > "$RUNNER_TEMP/notes.txt"
+      - name: Тестировщикам
+        id: testers
+        run: |
+          args=()
+          if [ -s "$RUNNER_TEMP/notes.txt" ]; then args=(--notes "$RUNNER_TEMP/notes.txt"); fi
+          python3 -I scripts/asc.py testflight com.qteb.ranepaTimetable "$BUILD" "${args[@]}" | tee "$RUNNER_TEMP/testers.log"
+          grep -o 'state=.*' "$RUNNER_TEMP/testers.log" | tail -1 | sed 's/^/result=/' >> "$GITHUB_OUTPUT"
+      - name: PR с update.json
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RESULT: ${{ steps.testers.outputs.result }}
+        run: |
+          branch="update-json-testflight-${VERSION}-${BUILD}"
+          if git ls-remote --exit-code origin "refs/heads/${branch}" >/dev/null; then exit 0; fi
+          git fetch --depth=1 origin "+refs/heads/main:refs/remotes/origin/main"
+          git switch -c "$branch" origin/main
+          notes=$(grep -m1 -v '^\s*$' "$RUNNER_TEMP/notes.txt" | sed 's/^[•*-] *//' || true)
+          python3 -I scripts/update_json.py testflight "$VERSION" "$BUILD" "$notes" \
+            || { echo "В update.json уже ${VERSION} (${BUILD}) или новее"; exit 0; }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -qam "update.json: TestFlight ${VERSION} (${BUILD})"
+          git push -q origin "$branch"
+          if [[ "$RESULT" == state=IN_BETA_TESTING* ]]; then
+            when="Сборка уже доступна внешним тестировщикам — можно вливать."
+          else
+            when="Сейчас: \`${RESULT:-нет данных}\`. Влить, когда сборка станет доступна внешним тестировщикам (бета-ревью пройдено)."
+          fi
+          gh pr create --base main --head "$branch" --title "update.json: TestFlight ${VERSION} (${BUILD})" \
+            --body "${when} После мержа — сброс кэша jsDelivr (docs/release.md)."
+      - name: Убрать ключ
+        if: always()
+        run: rm -rf "$HOME/.appstoreconnect"

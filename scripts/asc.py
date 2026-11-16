@@ -10,6 +10,10 @@
     python3 -I asc.py submit  BUNDLE VERSION
     python3 -I asc.py changes BUNDLE [--testflight]   PR с последней версии в App Store
                                                     (или с последней сборки) — черновик «Что нового»
+    python3 -I asc.py testflight BUNDLE BUILD [--notes F] [--group NAME] [--wait MIN]
+                                                    дождаться обработки, What to Test, внешние группы,
+                                                    бета-ревью; печатает state=… для CI
+    python3 -I asc.py live    BUNDLE                   версия в App Store и её «Что нового» (JSON)
     python3 -I asc.py call    METHOD PATH [JSON_BODY]
 
 Ключ: ~/.appstoreconnect/config.json ({"key_id", "issuer_id"}) и
@@ -87,7 +91,7 @@ def request(method, url, data=None, headers=None):
         return r.read()
 
 
-def call(method, path, body=None, **params):
+def call(method, path, body=None, fatal=True, **params):
     url = path if path.startswith("http") else BASE + path
     if params:
         url += "?" + urllib.parse.urlencode(params)
@@ -96,7 +100,11 @@ def call(method, path, body=None, **params):
         raw = request(method, url, data, {"Authorization": "Bearer " + token(),
                                           "Content-Type": "application/json"})
     except urllib.error.HTTPError as e:
-        sys.exit(f"{method} {path} → {e.code}\n{e.read().decode()}")
+        message = f"{method} {path} → {e.code}\n{e.read().decode()}"
+        if fatal:
+            sys.exit(message)
+        print(message, file=sys.stderr)
+        return None
     return json.loads(raw) if raw else {}
 
 
@@ -285,6 +293,69 @@ def changes(bundle, testflight=False):
             print("•", subject)
 
 
+def find_build(aid, number):
+    data = get("/v1/builds", **{"filter[app]": aid, "filter[version]": number,
+                                "include": "buildBetaDetail,betaAppReviewSubmission"})
+    return (data["data"][0], data.get("included", [])) if data["data"] else (None, [])
+
+
+def testflight(bundle, number, notes=None, group=None, wait="45"):
+    """Сборка → тестировщикам: обработка, What to Test, внешние группы, бета-ревью."""
+    aid = app_id(bundle)
+    deadline = time.time() + int(wait) * 60
+    while True:
+        build, _ = find_build(aid, number)
+        state = build["attributes"]["processingState"] if build else "NOT_FOUND"
+        if state == "VALID":
+            break
+        if state in ("FAILED", "INVALID") or time.time() > deadline:
+            sys.exit(f"сборка {number}: {state}")
+        print("processing:", state, flush=True)
+        time.sleep(30)
+    bid = build["id"]
+    if notes:
+        text = pathlib.Path(notes).read_text().strip()
+        locs = get(f"/v1/builds/{bid}/betaBuildLocalizations")["data"]
+        if locs:
+            call("PATCH", f"/v1/betaBuildLocalizations/{locs[0]['id']}", {"data": {
+                "type": "betaBuildLocalizations", "id": locs[0]["id"], "attributes": {"whatsNew": text}}})
+        else:
+            call("POST", "/v1/betaBuildLocalizations", {"data": {
+                "type": "betaBuildLocalizations", "attributes": {"locale": "ru", "whatsNew": text},
+                "relationships": {"build": rel("builds", bid)}}})
+        print("what to test: updated")
+    groups = [g for g in get(f"/v1/apps/{aid}/betaGroups")["data"]
+              if not g["attributes"]["isInternalGroup"] and (not group or g["attributes"]["name"] == group)]
+    for g in groups:
+        call("POST", f"/v1/betaGroups/{g['id']}/relationships/builds", {"data": [{"type": "builds", "id": bid}]})
+        print("group:", g["attributes"]["name"])
+    _, included = find_build(aid, number)
+    if not any(i["type"] == "betaAppReviewSubmissions" for i in included):
+        # Apple сама решает, нужно ли ревью; ошибка «не требуется» здесь не страшна.
+        call("POST", "/v1/betaAppReviewSubmissions", {"data": {
+            "type": "betaAppReviewSubmissions", "relationships": {"build": rel("builds", bid)}}}, fatal=False)
+    for _ in range(10):  # ревью обычной сборки той же версии часто одобряется за минуты
+        _, included = find_build(aid, number)
+        detail = next((i["attributes"] for i in included if i["type"] == "buildBetaDetails"), {})
+        if detail.get("externalBuildState") == "IN_BETA_TESTING":
+            break
+        time.sleep(60)
+    review = next((i["attributes"]["betaReviewState"] for i in included
+                   if i["type"] == "betaAppReviewSubmissions"), "NONE")
+    print(f"state={detail.get('externalBuildState', 'UNKNOWN')} review={review}")
+
+
+def live(bundle):
+    aid = app_id(bundle)
+    data = get(f"/v1/apps/{aid}/appStoreVersions", **{"filter[appStoreState]": "READY_FOR_SALE"})["data"]
+    if not data:
+        sys.exit("в App Store нет выпущенной версии")
+    v = data[0]
+    locs = get(f"/v1/appStoreVersions/{v['id']}/appStoreVersionLocalizations")["data"]
+    notes = next((l["attributes"].get("whatsNew") or "" for l in locs if l["attributes"]["locale"] == "ru"), "")
+    print(json.dumps({"version": v["attributes"]["versionString"], "whatsNew": notes}, ensure_ascii=False))
+
+
 def main(argv):
     if not argv:
         sys.exit(__doc__)
@@ -303,6 +374,10 @@ def main(argv):
         commands[cmd](*pos)
     elif cmd == "version":
         version(*pos, auto="--auto" in args)
+    elif cmd == "testflight":
+        testflight(*pos, notes=flags.get("--notes"), group=flags.get("--group"), wait=flags.get("--wait", "45"))
+    elif cmd == "live":
+        live(*pos)
     elif cmd == "changes":
         changes(*pos, testflight="--testflight" in args)
     elif cmd == "texts":
